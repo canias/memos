@@ -158,7 +158,9 @@ func (r *MarkdownRenderer) renderNode(node gast.Node, source []byte, depth int) 
 		r.buf.WriteString("~~")
 
 	case *east.TaskCheckBox:
-		if n.IsChecked {
+		if mast.IsDoingTaskCheckBox(n) {
+			r.buf.WriteString("[/] ")
+		} else if n.IsChecked {
 			r.buf.WriteString("[x] ")
 		} else {
 			r.buf.WriteString("[ ] ")

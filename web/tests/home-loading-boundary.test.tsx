@@ -1,6 +1,23 @@
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Home from "@/pages/Home";
+
+vi.mock("@/hooks/useScheduleQueries", () => ({
+  useScheduleList: () => ({ data: [] as never[] }),
+  useDeleteSchedule: () => ({ mutate: () => undefined, isPending: false }),
+}));
+
+vi.mock("@/contexts/ViewContext", () => ({
+  useView: () => ({
+    maxColumns: 1,
+    compactMode: false,
+    fullWidth: false,
+    manualOrder: false,
+    orderByTimeAsc: false,
+    timeBasis: "create_time",
+  }),
+}));
 
 vi.mock("@/hooks/useMemoSuggestions", () => ({
   useMemoSuggestions: () => [{ id: "tag:work" }],
@@ -111,7 +128,11 @@ describe("<Home>", () => {
     state.filterOptions = undefined;
   });
   it("renders the editor and memo cards synchronously without blank placeholders", () => {
-    render(<Home />);
+    render(
+      <MemoryRouter>
+        <Home />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByTestId("memo-editor")).toBeInTheDocument();
     expect(screen.getByTestId("memo-view")).toBeInTheDocument();
@@ -125,7 +146,11 @@ describe("<Home>", () => {
 
   it("shows another creator's matching memos without offering an editor", () => {
     state.creatorUsername = "alice";
-    render(<Home />);
+    render(
+      <MemoryRouter>
+        <Home />
+      </MemoryRouter>,
+    );
     expect(state.listProps).toMatchObject({ contextFilter: 'creator == "users/alice"' });
     expect(state.memoViewProps).toMatchObject({ showCreator: false });
     expect(screen.queryByTestId("memo-editor")).not.toBeInTheDocument();
@@ -133,7 +158,11 @@ describe("<Home>", () => {
 
   it("filters the feed and sets new memo placement to the selected Space", () => {
     state.selectedSpaceName = "spaces/product";
-    render(<Home />);
+    render(
+      <MemoryRouter>
+        <Home />
+      </MemoryRouter>,
+    );
 
     expect(state.listProps).toMatchObject({ contextFilter: 'space == "spaces/product"' });
     expect(state.editorProps).toMatchObject({

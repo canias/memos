@@ -396,6 +396,11 @@ func (s *APIService) UpdateMemo(ctx context.Context, request *apipb.UpdateMemoRe
 			update.Payload = nextMemo.Payload
 		} else if path == "pinned" {
 			update.Pinned = &request.Memo.Pinned
+		} else if path == "order" {
+			// Drag order: a value between the memo's new neighbors. The feed's
+			// `order` sort reads it.
+			order := request.Memo.GetOrder()
+			update.OrderValue = &order
 		} else if path == "state" {
 			rowStatus := convertStateToStore(request.Memo.State)
 			update.RowStatus = &rowStatus

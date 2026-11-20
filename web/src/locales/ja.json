@@ -379,7 +379,9 @@
       "has-link": "リンクあり",
       "has-location": "位置情報あり",
       "has-task-list": "タスクリストあり",
-      "remove": "フィルターを削除"
+      "remove": "フィルターを削除",
+      "any-visibility": "Any audience",
+      "title": "Filter memos"
     },
     "compact-mode": "コンパクト表示",
     "grid-compact-hint": "長いメモを折りたたみます。グリッドレイアウトでは常に有効です。",
@@ -454,7 +456,15 @@
     "add-reaction": "リアクションを追加",
     "remove-reaction": "反応を取り除く",
     "full-width": "全幅表示",
-    "full-width-hint": "メモのタイムラインを幅いっぱいに表示します。"
+    "full-width-hint": "メモのタイムラインを幅いっぱいに表示します。",
+    "manual-order": "Manual (drag) order",
+    "manual-order-hint": "Drag memos to arrange them; the order is remembered",
+    "focus-cue": "enter opens · e edits in place",
+    "change-date": "Change date",
+    "view-details": "View details",
+    "inline-save-failed": "Couldn't save the edit yet. It stays in the card and retries.",
+    "inline-edit-placeholder": "Edit in place; it saves as you pause",
+    "change-date-failed": "Couldn't move the memo yet. Try again."
   },
   "message": {
     "archived-successfully": "アーカイブが完了しました",
@@ -1428,5 +1438,60 @@
     "back": "{{seconds}} 秒戻る",
     "forward": "{{seconds}} 秒進む",
     "speed": "再生速度 {{rate}}x"
+  },
+  "shortcut": {
+    "title": "キーボードショートカット",
+    "group": {
+      "feed": "メモ一覧",
+      "editor": "エディター",
+      "memo": "メモ"
+    },
+    "feed": {
+      "next": "次のメモへ移動",
+      "previous": "前のメモへ移動",
+      "open": "フォーカス中のメモを開く",
+      "search": "メモを検索",
+      "filters": "フィルター項目を開く",
+      "clear": "フォーカスを解除",
+      "cheatsheet": "この一覧を表示"
+    },
+    "editor": {
+      "cycle-task": "行の状態を切り替え:未完了、進行中、完了、なし",
+      "move-line": "行やタスクを上下に移動",
+      "save": "メモを保存"
+    },
+    "memo": {
+      "edit-in-place": "メモをその場で編集",
+      "change-date": "メモの日付をクリックして移動"
+    }
+  },
+  "schedule": {
+    "title": "Schedule memo",
+    "start": "Publish at",
+    "kind": {
+      "once": "Once",
+      "every-days": "Every N days",
+      "weekdays": "On weekdays"
+    },
+    "every-n-days": "Every {count} day(s)",
+    "create": "Create plan",
+    "created": "Scheduled. It will publish at the chosen time.",
+    "create-failed": "Couldn't create the schedule yet. Try again.",
+    "empty-content": "Write the memo first, then schedule it.",
+    "upcoming": "Upcoming",
+    "upcoming-hint": "Plans that will publish memos on their own",
+    "next-run": "Next publish",
+    "recurring": "Recurring",
+    "delete": "Delete plan",
+    "delete-failed": "Couldn't delete the plan yet. Try again."
+  },
+  "weekday": {
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat",
+    "sunday": "Sun"
   }
 }

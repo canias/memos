@@ -33,6 +33,7 @@ vi.mock("@/components/MemoEditor/MemoEditor", () => ({
 }));
 
 vi.mock("@/hooks/useMemoQueries", () => ({
+  useReorderMemos: () => ({ mutate: () => undefined }),
   useUpdateMemo: () => ({ mutate: vi.fn() }),
 }));
 

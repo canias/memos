@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("copy-to-clipboard", () => ({ default: mocks.copy }));
 
 vi.mock("@/hooks/useMemoQueries", () => ({
+  useReorderMemos: () => ({ mutate: () => undefined }),
   memoKeys: {
     comments: (name: string) => ["memos", name, "comments"],
     detail: (name: string) => ["memos", name, "detail"],

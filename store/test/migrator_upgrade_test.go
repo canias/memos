@@ -83,6 +83,9 @@ func TestUpgradeFromCalendarRelease(t *testing.T) {
 // database with the candidate profile, then checks upgrade and restart behavior.
 func requireUpgradePreservesData(ctx context.Context, t *testing.T, previous *store.Store, candidateProfile *profile.Profile) {
 	t.Helper()
+	// A real upgrade migrates on the new binary's first start, before any of its
+	// code reads the database; the previous store mirrors that first start.
+	require.NoError(t, previous.Migrate(ctx))
 	user, err := createTestingHostUser(ctx, previous)
 	require.NoError(t, err)
 	memo, err := previous.CreateMemo(ctx, &store.Memo{

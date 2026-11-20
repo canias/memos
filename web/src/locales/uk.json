@@ -381,7 +381,9 @@
       "has-link": "єПосилання",
       "has-location": "є розташування",
       "has-task-list": "єСписокЗавдань",
-      "remove": "Вилучити фільтр"
+      "remove": "Вилучити фільтр",
+      "any-visibility": "Any audience",
+      "title": "Filter memos"
     },
     "compact-mode": "Компактний режим",
     "link-preview": "Попередній перегляд посилань",
@@ -456,7 +458,15 @@
     "add-reaction": "Додайте реакцію",
     "remove-reaction": "Видалити реакцію",
     "full-width": "На всю ширину",
-    "full-width-hint": "Використовувати всю ширину хронології нотаток."
+    "full-width-hint": "Використовувати всю ширину хронології нотаток.",
+    "manual-order": "Manual (drag) order",
+    "manual-order-hint": "Drag memos to arrange them; the order is remembered",
+    "focus-cue": "enter opens · e edits in place",
+    "change-date": "Change date",
+    "view-details": "View details",
+    "inline-save-failed": "Couldn't save the edit yet. It stays in the card and retries.",
+    "inline-edit-placeholder": "Edit in place; it saves as you pause",
+    "change-date-failed": "Couldn't move the memo yet. Try again."
   },
   "message": {
     "archived-successfully": "Архівовано успішно",
@@ -1430,5 +1440,60 @@
     "back": "Назад на {{seconds}} секунд",
     "forward": "Вперед на {{seconds}} секунд",
     "speed": "Швидкість відтворення {{rate}}x"
+  },
+  "shortcut": {
+    "title": "Гарячі клавіші",
+    "group": {
+      "feed": "Список нотаток",
+      "editor": "Редактор",
+      "memo": "Нотатки"
+    },
+    "feed": {
+      "next": "До наступної нотатки",
+      "previous": "До попередньої нотатки",
+      "open": "Відкрити нотатку в фокусі",
+      "search": "Пошук нотаток",
+      "filters": "Відкрити параметри фільтра",
+      "clear": "Прибрати фокус",
+      "cheatsheet": "Показати цю довідку"
+    },
+    "editor": {
+      "cycle-task": "Перемкнути рядок: на черзі, у роботі, готово, звичайний",
+      "move-line": "Перемістити рядок чи завдання вгору/вниз",
+      "save": "Зберегти нотатку"
+    },
+    "memo": {
+      "edit-in-place": "Редагувати нотатку на місці",
+      "change-date": "Клацніть дату нотатки, щоб перемістити її"
+    }
+  },
+  "schedule": {
+    "title": "Schedule memo",
+    "start": "Publish at",
+    "kind": {
+      "once": "Once",
+      "every-days": "Every N days",
+      "weekdays": "On weekdays"
+    },
+    "every-n-days": "Every {count} day(s)",
+    "create": "Create plan",
+    "created": "Scheduled. It will publish at the chosen time.",
+    "create-failed": "Couldn't create the schedule yet. Try again.",
+    "empty-content": "Write the memo first, then schedule it.",
+    "upcoming": "Upcoming",
+    "upcoming-hint": "Plans that will publish memos on their own",
+    "next-run": "Next publish",
+    "recurring": "Recurring",
+    "delete": "Delete plan",
+    "delete-failed": "Couldn't delete the plan yet. Try again."
+  },
+  "weekday": {
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat",
+    "sunday": "Sun"
   }
 }

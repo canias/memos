@@ -220,6 +220,9 @@ func applyMemoUpdate(ctx context.Context, executor memoUpdateExecer, update *sto
 		}
 		set, args = append(set, "`payload` = ?"), append(args, string(payload))
 	}
+	if v := update.OrderValue; v != nil {
+		set, args = append(set, "`order_no` = ?"), append(args, *v)
+	}
 	if update.ClearSpace {
 		set = append(set, "`space_id` = NULL")
 	} else if v := update.SpaceID; v != nil {

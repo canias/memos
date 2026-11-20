@@ -24,9 +24,9 @@ export const canChooseSpaceFor = ({
 }): boolean => (memo ? !memo.parent && canManageMemo(memo, currentUser) : !parentMemoName && !defaultSpace);
 
 export interface InitialEditorStateOptions {
-  /** The memo being edited; its draft is never restored from the cache. */
+  /** The memo being edited; an unfinished draft of it restores over its fields. */
   memo?: Memo;
-  /** The persisted draft's key, for a new memo or comment. */
+  /** The persisted draft's key, per identity. */
   draftKey: string;
   initialFocusMode?: boolean;
   defaultVisibility?: Visibility;
@@ -53,8 +53,26 @@ export function initialEditorState({
 }: InitialEditorStateOptions): EditorState {
   const base = createInitialState(initialFocusMode);
   if (memo) {
-    cacheService.clear(draftKey);
-    return { ...base, ...memoService.fromMemo(memo) };
+    const memoState = { ...base, ...memoService.fromMemo(memo) };
+    // An edit of this memo that was interrupted (a filter or a day changed) restores
+    // what was typed; the memo's own fields carry under it. A draft that only repeats
+    // the memo, or none at all, clears the slot.
+    const draft = cacheService.loadDraft(draftKey);
+    const draftContent = typeof draft?.content === "string" ? draft.content : undefined;
+    if (!draftContent || draftContent === memo.content) {
+      cacheService.clear(draftKey);
+      return memoState;
+    }
+    return {
+      ...memoState,
+      content: draftContent,
+      metadata: {
+        ...memoState.metadata,
+        attachments: draft.attachments.length > 0 ? draft.attachments : memoState.metadata.attachments,
+        location: draft.location === null ? undefined : (draft.location ?? memoState.metadata.location),
+        space: draft.space ?? memoState.metadata.space,
+      },
+    };
   }
   const draft = cacheService.loadDraft(draftKey);
   const visibility = draft.visibility ?? defaultVisibility ?? base.metadata.visibility;

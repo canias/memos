@@ -65,6 +65,10 @@ type Memo struct {
 	Payload    *storepb.MemoPayload
 	SpaceID    *int32
 
+	// OrderValue positions a memo in its creator's manual order, as feed drag
+	// order; nil keeps the memo in its time order.
+	OrderValue *float64
+
 	// Composed fields
 	ParentUID *string
 }
@@ -93,9 +97,10 @@ type FindMemo struct {
 	Offset *int
 
 	// Ordering
-	OrderByPinned    bool
-	OrderByUpdatedTs bool
-	OrderByTimeAsc   bool
+	OrderByOrderValue bool
+	OrderByPinned     bool
+	OrderByUpdatedTs  bool
+	OrderByTimeAsc    bool
 }
 
 type FindMemoPayload struct {
@@ -151,6 +156,11 @@ type UpdateMemo struct {
 	Payload    *storepb.MemoPayload
 	SpaceID    *int32
 	ClearSpace bool
+
+	// OrderValue repositions the memo in its creator's manual order; nil leaves
+	// the stored value untouched.
+	OrderValue *float64
+
 	// Policy is set by transport-facing author mutations. Drivers revalidate it
 	// in the same transaction as the update; nil preserves trusted internal and
 	// migration callers.

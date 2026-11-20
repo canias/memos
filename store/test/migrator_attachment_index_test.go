@@ -37,11 +37,15 @@ func TestMigrationAttachmentIndex(t *testing.T) {
 	})
 	require.NoError(t, err)
 
+	// Backdate to 26.10.1 and strip what 26.11 added, so the replay covers the
+	// whole post-baseline window: the attachment index and the memo drag order.
 	query := "DROP INDEX " + attachmentLookupIndex(driver)
 	if driver == "mysql" {
 		query += " ON attachment"
 	}
 	_, err = ts.GetDriver().GetDB().ExecContext(ctx, query)
+	require.NoError(t, err)
+	_, err = ts.GetDriver().GetDB().ExecContext(ctx, "ALTER TABLE memo DROP COLUMN order_no")
 	require.NoError(t, err)
 	setSchemaVersion(ctx, t, ts, "26.10.1")
 	require.NoError(t, ts.Migrate(ctx))
@@ -49,7 +53,7 @@ func TestMigrationAttachmentIndex(t *testing.T) {
 	require.NoError(t, ts.Migrate(ctx), "a completed upgrade can restart")
 	setting, err := ts.GetUncachedInstanceSetting(ctx, &store.FindInstanceSetting{Name: "BASIC"})
 	require.NoError(t, err)
-	require.Equal(t, "26.11.1", setting.GetBasicSetting().SchemaVersion)
+	require.Equal(t, "26.11.3", setting.GetBasicSetting().SchemaVersion)
 	stored, err := ts.GetAttachment(ctx, &store.FindAttachment{ID: &attachment.ID, GetBlob: true})
 	require.NoError(t, err)
 	require.Equal(t, []byte("preserved blob"), stored.Blob)

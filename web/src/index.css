@@ -60,6 +60,13 @@
 }
 
 @layer components {
+  /* The doing task marker (`- [/]`) in memo bodies: amber in every theme, like the
+     search wash, so an in-progress item reads at a glance in the editor and the view. */
+  .mbe-doing-task {
+    color: var(--mu-warning);
+    font-weight: 600;
+  }
+
   /* Mermaid diagrams drawn by Pele take the theme's colors; a new scheme recolors them live. */
   .pele {
     --pele-bg: var(--mu-surface);

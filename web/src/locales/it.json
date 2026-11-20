@@ -380,7 +380,9 @@
       "has-link": "haLink",
       "has-location": "ha una posizione",
       "has-task-list": "haListaCompiti",
-      "remove": "Rimuovi filtro"
+      "remove": "Rimuovi filtro",
+      "any-visibility": "Any audience",
+      "title": "Filter memos"
     },
     "compact-mode": "Modalità compatta",
     "link-preview": "Anteprima dei link",
@@ -455,7 +457,15 @@
     "add-reaction": "Aggiungi reazione",
     "remove-reaction": "Rimuovi la reazione",
     "full-width": "Larghezza intera",
-    "full-width-hint": "Usa tutta la larghezza della cronologia dei memo."
+    "full-width-hint": "Usa tutta la larghezza della cronologia dei memo.",
+    "manual-order": "Manual (drag) order",
+    "manual-order-hint": "Drag memos to arrange them; the order is remembered",
+    "focus-cue": "enter opens · e edits in place",
+    "change-date": "Change date",
+    "view-details": "View details",
+    "inline-save-failed": "Couldn't save the edit yet. It stays in the card and retries.",
+    "inline-edit-placeholder": "Edit in place; it saves as you pause",
+    "change-date-failed": "Couldn't move the memo yet. Try again."
   },
   "message": {
     "archived-successfully": "Archiviato con successo",
@@ -1429,5 +1439,60 @@
     "back": "Indietro di {{seconds}} secondi",
     "forward": "Avanti di {{seconds}} secondi",
     "speed": "Velocità di riproduzione {{rate}}x"
+  },
+  "shortcut": {
+    "title": "Scorciatoie da tastiera",
+    "group": {
+      "feed": "Elenco dei memo",
+      "editor": "Editor",
+      "memo": "Memo"
+    },
+    "feed": {
+      "next": "Vai al memo successivo",
+      "previous": "Vai al memo precedente",
+      "open": "Apri il memo selezionato",
+      "search": "Cerca memo",
+      "filters": "Apri le opzioni di filtro",
+      "clear": "Cancella il focus",
+      "cheatsheet": "Mostra questo riepilogo"
+    },
+    "editor": {
+      "cycle-task": "Cicla la riga: da fare, in corso, fatto, semplice",
+      "move-line": "Sposta la riga o l'attività su/giù",
+      "save": "Salva il memo"
+    },
+    "memo": {
+      "edit-in-place": "Modifica il memo in posizione",
+      "change-date": "Clicca la data per spostare il memo"
+    }
+  },
+  "schedule": {
+    "title": "Schedule memo",
+    "start": "Publish at",
+    "kind": {
+      "once": "Once",
+      "every-days": "Every N days",
+      "weekdays": "On weekdays"
+    },
+    "every-n-days": "Every {count} day(s)",
+    "create": "Create plan",
+    "created": "Scheduled. It will publish at the chosen time.",
+    "create-failed": "Couldn't create the schedule yet. Try again.",
+    "empty-content": "Write the memo first, then schedule it.",
+    "upcoming": "Upcoming",
+    "upcoming-hint": "Plans that will publish memos on their own",
+    "next-run": "Next publish",
+    "recurring": "Recurring",
+    "delete": "Delete plan",
+    "delete-failed": "Couldn't delete the plan yet. Try again."
+  },
+  "weekday": {
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat",
+    "sunday": "Sun"
   }
 }

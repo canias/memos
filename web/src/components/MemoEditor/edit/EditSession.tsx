@@ -1,12 +1,15 @@
+import { timestampFromDate } from "@bufbuild/protobuf/wkt";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DrawingSheet } from "@/components/DrawingSheet";
 import { useAuth } from "@/contexts/AuthContext";
 import { useInstance } from "@/contexts/InstanceContext";
 import useCurrentUser from "@/hooks/useCurrentUser";
+import { useCreateSchedule } from "@/hooks/useScheduleQueries";
 import { useSourceMode } from "@/hooks/useSourceMode";
 import { showErrorToast, toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { InstanceSetting_Key } from "@/types/proto/api/instance_service_pb";
+import { Visibility } from "@/types/proto/api/memo_service_pb";
 import { useTranslate } from "@/utils/i18n";
 import { convertVisibilityFromString } from "@/utils/memo";
 
@@ -31,7 +34,7 @@ import { canChooseSpaceFor } from "./initialState";
 import { cacheService, errorService, transcriptionService } from "./services";
 import { useEditorContext, useEditorSelector } from "./state";
 import { EditorToolbar } from "./Toolbar";
-import type { EditorViewToggles, EditSessionProps } from "./types";
+import type { EditorViewToggles, EditSessionProps, ScheduleDraft } from "./types";
 import type { LocalFile } from "./types/attachment";
 import type { EditorController, EditorPosition } from "./types/editorController";
 
@@ -64,6 +67,7 @@ export const EditSession: React.FC<EditSessionProps> = ({
   const t = useTranslate();
   const currentUser = useCurrentUser();
   const editorRef = useRef<EditorController>(null);
+  const createSchedule = useCreateSchedule();
   const { actions, dispatch, getState } = useEditorContext();
   // Subscribe only to the low-frequency slices this component renders from, so
   // typing (which changes content) does not re-render the editor shell and its
@@ -112,8 +116,9 @@ export const EditSession: React.FC<EditSessionProps> = ({
   const sourceMode = { isSourceMode, onToggle: () => setEditorMode(isSourceMode ? "rich" : "source") };
 
   const { isInitialized } = useMemoInit({ editorRef, draftKey, autoFocus, mode: editorMode });
-  // An edit starts from the memo and never persists a draft; only new memos and comments do.
-  const isDraftCacheEnabled = !memo;
+  // Every session persists its draft: new memos and comments whole, and an edit of an
+  // existing memo as the in-progress state, restored when the memo is edited again.
+  const isDraftCacheEnabled = true;
 
   useEffect(() => {
     onSavingChange?.(isSaving);
@@ -329,6 +334,32 @@ export const EditSession: React.FC<EditSessionProps> = ({
     onCancel: onCancel ? handleCancel : undefined,
   });
 
+  const handleScheduleDraft = useCallback(
+    (draft: ScheduleDraft) => {
+      const content = editorRef.current?.getMarkdown() ?? "";
+      if (!content.trim()) {
+        showErrorToast(t("schedule.empty-content"));
+        return;
+      }
+      createSchedule.mutate(
+        {
+          ...draft,
+          visibility: draft.visibility ?? defaultVisibility ?? Visibility.PRIVATE,
+          startAt: timestampFromDate(draft.startAt),
+        },
+        {
+          onSuccess: () => {
+            // The draft moved into its publishing plan; the composer starts clean.
+            dispatch(actions.reset());
+            toast.add({ title: t("schedule.created"), type: "success" });
+          },
+          onError: () => showErrorToast(t("schedule.create-failed")),
+        },
+      );
+    },
+    [createSchedule, defaultVisibility, dispatch, t],
+  );
+
   return (
     <>
       <FocusModeOverlay isActive={isFocusMode} onToggle={handleToggleFocusMode} />
@@ -372,13 +403,7 @@ export const EditSession: React.FC<EditSessionProps> = ({
         )}
 
         {/* Editor content grows to fill available space in focus mode */}
-        <EditorContent
-          ref={editorRef}
-          placeholder={placeholder}
-          sourceMode={sourceMode}
-          onSubmit={handleSave}
-          onFiles={handleEditorFiles}
-        />
+        <EditorContent ref={editorRef} placeholder={placeholder} sourceMode={sourceMode} onSave={handleSave} onFiles={handleEditorFiles} />
 
         {isAudioRecorderOpen && (audioRecorder.isBusy || isTranscribingAudio) && (
           <AudioRecorderPanel
@@ -420,6 +445,7 @@ export const EditSession: React.FC<EditSessionProps> = ({
             sourceMode={sourceMode}
             onInsertImages={handleInsertImages}
             onDrawingClick={drawing.openNew}
+            onSchedule={!memoName && !parentMemoName ? handleScheduleDraft : undefined}
           />
         </div>
       </div>

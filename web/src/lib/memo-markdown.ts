@@ -19,6 +19,7 @@ import {
   type TagsOptions,
   type Theme,
   tags,
+  textDecorator,
 } from "@usememos/editor";
 import { highlightLoadedCode, loadHighlighter } from "@/lib/code-highlight";
 import { colorToHex } from "@/lib/color";
@@ -204,6 +205,9 @@ export const memoExtensions = (options: MemoExtensionOptions = {}): Extension[] 
   tags(options.tags),
   mentions(options.mentions),
   codeHighlight(),
+  // The doing task marker (`- [/] a task`): only the memo engine parses it as a
+  // task checkbox yet, so the literal marker carries the state and shows amber.
+  textDecorator({ pattern: /\[\/\]/g, class: "mbe-doing-task" }),
   { name: "memoViews", views: { "code:mermaid": renderDiagram } },
 ];
 

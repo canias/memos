@@ -40,6 +40,10 @@ func (*APIService) parseMemoOrderBy(orderBy string, memoFind *store.FindMemo) er
 			hasPinned = true
 			memoFind.OrderByPinned = true
 			// Note: pinned is always DESC (true first) regardless of direction specified.
+		case "order":
+			// The manual drag order, always ascending; unordered memos follow
+			// their time order after the ordered ones.
+			memoFind.OrderByOrderValue = true
 		case "create_time", "name":
 			// Only set if this is the first time field we encounter.
 			if !hasExplicitTimeField {
@@ -58,8 +62,9 @@ func (*APIService) parseMemoOrderBy(orderBy string, memoFind *store.FindMemo) er
 		}
 	}
 
-	// If only pinned was specified, still need to set a default time ordering.
-	if hasPinned && !memoFind.OrderByUpdatedTs && len(fields) == 1 {
+	// If only pinned (or the manual order) was specified, still needs a default
+	// time ordering; unordered memos list newest first under it.
+	if (hasPinned || memoFind.OrderByOrderValue) && !memoFind.OrderByUpdatedTs && len(fields) == 1 {
 		memoFind.OrderByTimeAsc = false // default to desc
 	}
 

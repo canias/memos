@@ -473,6 +473,39 @@ export function useUpdateMemo(name: string | undefined) {
   });
 }
 
+/**
+ * Applies a drag reorder: each memo in `updates` takes the order value its new position
+ * gives it, patching the caches optimistically in one pass. Concurrent per-memo updates
+ * run their own queue first; the reorder's server calls follow after.
+ */
+export function useReorderMemos() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["memo-reorder"],
+    mutationFn: async (updates: { name: string; order: number }[]) => {
+      for (const { name, order } of updates) {
+        await memoServiceClient.updateMemo({
+          memo: create(MemoSchema, { name, order }),
+          updateMask: create(FieldMaskSchema, { paths: ["order"] }),
+        });
+      }
+    },
+    onMutate: async (updates) => {
+      await queryClient.cancelQueries({ queryKey: memoKeys.all });
+      for (const { name, order } of updates) {
+        patchMemoInCollectionQueries(queryClient, { name, order });
+        const detail = queryClient.getQueryData<Memo>(memoKeys.detail(name));
+        if (detail) queryClient.setQueryData(memoKeys.detail(name), { ...detail, order });
+      }
+    },
+    onError: () => {
+      // Roll back by refetching the lists; the reorder only moved positions.
+      queryClient.invalidateQueries({ queryKey: memoKeys.lists() });
+    },
+  });
+}
+
 export function useDeleteMemo() {
   const queryClient = useQueryClient();
 

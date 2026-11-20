@@ -12,6 +12,7 @@ export type {
   FocusModeExitButtonProps,
   FocusModeOverlayProps,
   InsertMenuProps,
+  ScheduleDraft,
 } from "./components";
 export type { EditorController } from "./editorController";
 export type { LocationState } from "./insertMenu";

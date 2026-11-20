@@ -35,6 +35,12 @@ interface AppSidebarContextValue {
   completeMobileClose: (open: boolean) => void;
   quickFindOpen: boolean;
   setQuickFindOpen: (open: boolean) => void;
+  /** The keyboard shortcuts cheat sheet, opened by the feed's `?` key. */
+  shortcutsOpen: boolean;
+  setShortcutsOpen: (open: boolean) => void;
+  /** The feed's filter popover, opened by its trigger or the `f` key. */
+  memoFilterMenuOpen: boolean;
+  setMemoFilterMenuOpen: (open: boolean) => void;
 }
 
 const AppSidebarContext = createContext<AppSidebarContextValue | null>(null);
@@ -48,6 +54,8 @@ export const AppSidebarProvider = ({ children }: { children: ReactNode }) => {
   const pendingMobileCloseActionRef = useRef<(() => void) | undefined>(undefined);
   const scheduledMobileCloseActionFrameRef = useRef<number | undefined>(undefined);
   const [quickFindOpen, setQuickFindOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [memoFilterMenuOpen, setMemoFilterMenuOpen] = useState(false);
 
   useEffect(() => {
     pendingMobileCloseActionRef.current = undefined;
@@ -113,6 +121,10 @@ export const AppSidebarProvider = ({ children }: { children: ReactNode }) => {
       completeMobileClose,
       quickFindOpen,
       setQuickFindOpen,
+      shortcutsOpen,
+      setShortcutsOpen,
+      memoFilterMenuOpen,
+      setMemoFilterMenuOpen,
     }),
     [attachmentSection, inboxFilter, memoDetail, setMemoDetail, mobileOpen, closeMobileThen, completeMobileClose, quickFindOpen],
   );

@@ -12,6 +12,8 @@ interface ViewState {
   orderByTimeAsc: boolean;
   timeBasis?: MemoTimeBasis;
   sortTimeField?: MemoTimeBasis;
+  /** The manual (drag) order: the feed sorts by each memo's dragged position. */
+  manualOrder?: boolean;
   compactMode: boolean;
   fullWidth: boolean;
   maxColumns: MemoMaxColumns;
@@ -20,11 +22,13 @@ interface ViewState {
 interface ViewContextValue {
   orderByTimeAsc: boolean;
   timeBasis: MemoTimeBasis;
+  manualOrder: boolean;
   compactMode: boolean;
   fullWidth: boolean;
   maxColumns: MemoMaxColumns;
   setOrderByTimeAsc: (value: boolean) => void;
   setTimeBasis: (field: MemoTimeBasis) => void;
+  setManualOrder: (value: boolean) => void;
   setCompactMode: (value: boolean) => void;
   setFullWidth: (value: boolean) => void;
   setMaxColumns: (value: MemoMaxColumns) => void;
@@ -50,6 +54,7 @@ export function ViewProvider({ children, enabled = true }: { children: ReactNode
         return {
           orderByTimeAsc: Boolean(data.orderByTimeAsc ?? DEFAULT_VIEW_STATE.orderByTimeAsc),
           timeBasis,
+          manualOrder: Boolean(data.manualOrder),
           compactMode: Boolean(data.compactMode ?? DEFAULT_VIEW_STATE.compactMode),
           fullWidth: Boolean(data.fullWidth ?? DEFAULT_VIEW_STATE.fullWidth),
           maxColumns,
@@ -84,6 +89,7 @@ export function ViewProvider({ children, enabled = true }: { children: ReactNode
 
   const setOrderByTimeAsc = (value: boolean) => updateState({ orderByTimeAsc: value });
   const setTimeBasis = (field: MemoTimeBasis) => updateState({ timeBasis: field });
+  const setManualOrder = (value: boolean) => updateState({ manualOrder: value });
   const setCompactMode = (value: boolean) => updateState({ compactMode: value });
   const setFullWidth = (value: boolean) => updateState({ fullWidth: value });
   const setMaxColumns = (value: MemoMaxColumns) => updateState({ maxColumns: value });
@@ -93,11 +99,13 @@ export function ViewProvider({ children, enabled = true }: { children: ReactNode
       value={{
         orderByTimeAsc: activeState.orderByTimeAsc,
         timeBasis,
+        manualOrder: Boolean(activeState.manualOrder),
         compactMode: activeState.compactMode,
         fullWidth: activeState.fullWidth,
         maxColumns: activeState.maxColumns,
         setOrderByTimeAsc,
         setTimeBasis,
+        setManualOrder,
         setCompactMode,
         setFullWidth,
         setMaxColumns,

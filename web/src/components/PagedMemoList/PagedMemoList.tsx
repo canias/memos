@@ -1,14 +1,18 @@
 import { Button, Skeleton } from "@usememos/ui";
-import { ArrowUpIcon } from "lucide-react";
+import { ArrowUpIcon, KeyboardIcon } from "lucide-react";
 import { type ReactElement, type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { useNavigate } from "react-router-dom";
 import { useAppSidebar } from "@/contexts/AppSidebarContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { isSearchFilter, useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import { MentionResolutionProvider } from "@/contexts/MentionResolutionContext";
 import { useNewMemo } from "@/contexts/NewMemoContext";
 import { useView } from "@/contexts/ViewContext";
+import { holdEditingPositions, memoNamesEditing, requestLeanEdit } from "@/hooks/memoEditRegistry";
 import { useDelayedFlag } from "@/hooks/useDelayedFlag";
-import { useInfiniteMemos } from "@/hooks/useMemoQueries";
+import useMemoListHotkeys from "@/hooks/useMemoListHotkeys";
+import { useInfiniteMemos, useReorderMemos } from "@/hooks/useMemoQueries";
 import { hoistMemoToFront } from "@/hooks/useMemoSorting";
 import { combineCELFilters } from "@/lib/cel-filter";
 import { DEFAULT_LIST_MEMOS_PAGE_SIZE, LOADING_INDICATOR_DELAY_MS } from "@/lib/constants";
@@ -17,7 +21,9 @@ import { State } from "@/types/proto/api/common_pb";
 import type { Memo } from "@/types/proto/api/memo_service_pb";
 import { useTranslate } from "@/utils/i18n";
 import ColumnGrid, { ColumnGridUntrappedProvider, columnCountForWidth, GRID_GAP } from "../ColumnGrid";
+import MemoFilterPopover from "../MemoFilterPopover";
 import MemoFilters from "../MemoFilters";
+import { previewOrder, useDragReorder } from "../MemoMetadata/Attachment/useDragReorder";
 import { MEMO_CARD_BASE_CLASSES } from "../MemoView/constants";
 import Placeholder from "../Placeholder";
 import EmptyLine from "./EmptyLine";
@@ -48,6 +54,8 @@ const Loader = ({ count = 3 }: { count?: number }) => {
 };
 
 interface Props {
+  /** The feed is one creator's memos under the manual (drag) sort: cards reorder by grip or pointer. */
+  dragSort?: boolean;
   renderer: (memo: Memo, options: { compact: boolean }) => ReactElement;
   listSort?: (list: Memo[]) => Memo[];
   state?: State;
@@ -133,7 +141,7 @@ const PagedMemoList = (props: Props) => {
   const t = useTranslate();
   const { isUserSettingsInitialized } = useAuth();
   const { filters, memoView, removeFilter, setFilters, setMemoView } = useMemoFilterContext();
-  const { setQuickFindOpen } = useAppSidebar();
+  const { setQuickFindOpen: openQuickFind, setShortcutsOpen: openShortcuts, setMemoFilterMenuOpen: openFilterMenu } = useAppSidebar();
   const { maxColumns, compactMode, fullWidth } = useView();
   // maxColumns is a ceiling: 1 = single reading column, 0 = as many as fit. The single
   // column renders in normal document flow; anything wider becomes the packed grid.
@@ -187,9 +195,16 @@ const PagedMemoList = (props: Props) => {
   // Apply custom sorting if provided, otherwise use memos directly, then hoist
   // a freshly created memo to the very top so it stays visible above pins.
   const { newMemoName } = useNewMemo();
+  // A memo under edit holds the position it showed when its edit started: saving
+  // (which moves its update time) or a pause while typing must not slide the card
+  // out from under the caret.
+  const previousOrderRef = useRef<Memo[]>([]);
   const sortedMemoList = useMemo(() => {
     const sorted = props.listSort ? props.listSort(memos) : memos;
-    return hoistMemoToFront(sorted, newMemoName);
+    const hoisted = hoistMemoToFront(sorted, newMemoName);
+    const held = holdEditingPositions(hoisted, previousOrderRef.current, memoNamesEditing());
+    previousOrderRef.current = held;
+    return held;
   }, [memos, props.listSort, newMemoName]);
 
   // Auto-fetch hook: fetches more content when page isn't scrollable
@@ -226,6 +241,29 @@ const PagedMemoList = (props: Props) => {
   const priorityKey = newMemoName && firstMemo?.name === newMemoName ? getMemoKey(firstMemo) : undefined;
 
   // Stable reference so MentionResolutionProvider's memo (keyed on the array) actually holds.
+  // The manual order's drag: the shown order is the drop preview; dropping renumbers the
+  // visible memos to their positions, so every card keeps a stable drag order value.
+  const reorder = useReorderMemos();
+  const flowDrag = useDragReorder(displayMemoList.length, (from, to) => {
+    const preview = previewOrder(displayMemoList, from, to);
+    const updates = preview
+      .map((memo, index) => ({ name: memo.name, order: index + 1 }))
+      .filter((update, index) => preview[index].order !== update.order);
+    if (updates.length > 0) reorder.mutate(updates);
+  });
+  const shownFlowList = props.dragSort ? previewOrder(displayMemoList, flowDrag.dragging, flowDrag.over) : displayMemoList;
+
+  // The feed's keyboard: focus rings over cards, open and filter shortcuts. The focused
+  // card answers to enter (open) and e (edit in place) through its own handlers.
+  const navigate = useNavigate();
+  const { focusedName } = useMemoListHotkeys({
+    memos: displayMemoList,
+    onOpen: (memo) => navigate(`/${memo.name}`),
+    onEditFocused: (memo) => requestLeanEdit(memo.name),
+    onOpenQuickFind: () => openQuickFind(true),
+    onOpenFilters: () => openFilterMenu(true),
+    onOpenShortcuts: () => openShortcuts(true),
+  });
   const contents = useMemo(() => displayMemoList.map((memo) => memo.content), [displayMemoList]);
   const userNames = useMemo(
     () =>
@@ -261,7 +299,7 @@ const PagedMemoList = (props: Props) => {
       <MemoListError
         error={error}
         onRetry={isFetchNextPageError ? fetchNextPage : refetch}
-        onEditQuery={hasSearch ? () => setQuickFindOpen(true) : undefined}
+        onEditQuery={hasSearch ? () => openQuickFind(true) : undefined}
         onClearQuery={hasSearch ? () => removeFilter(isSearchFilter) : undefined}
       />
     ) : null;
@@ -276,7 +314,10 @@ const PagedMemoList = (props: Props) => {
     leadingContent || hasFilters || initialLoader || emptyPlaceholder || initialError ? (
       <div className="flex w-full flex-col" style={{ gap: GRID_GAP }}>
         {leadingContent}
-        <MemoFilters />
+        <div className="flex items-center gap-1.5">
+          <MemoFilterPopover />
+          <MemoFilters />
+        </div>
         {initialLoader}
         {initialError}
         {emptyPlaceholder}
@@ -292,10 +333,15 @@ const PagedMemoList = (props: Props) => {
     </>
   );
 
+  const draggedMemo = props.dragSort && flowDrag.dragging !== null ? displayMemoList[flowDrag.dragging] : undefined;
   const children = (
     <MentionResolutionProvider contents={contents} userNames={userNames}>
       <div ref={layoutMeasureRef} className="w-full">
-        <div className={cn("flex flex-col justify-start w-full mx-auto", useGrid || fullWidth ? "max-w-none" : "max-w-2xl")}>
+        <div
+          ref={props.dragSort ? flowDrag.containerRef : undefined}
+          onClickCapture={props.dragSort ? flowDrag.clickCapture : undefined}
+          className={cn("flex flex-col justify-start w-full mx-auto", useGrid || fullWidth ? "max-w-none" : "max-w-2xl")}
+        >
           {useGrid ? (
             <>
               <ColumnGridUntrappedProvider>
@@ -320,13 +366,75 @@ const PagedMemoList = (props: Props) => {
               <MemoFilters className="mb-2" />
               {initialLoader}
               {initialError}
-              {displayMemoList.map((memo) => props.renderer(memo, { compact: effectiveCompact }))}
+              {shownFlowList.map((memo, position) => {
+                if (!props.dragSort && focusedName !== memo.name) {
+                  return (
+                    <div key={getMemoKey(memo)} data-memo-name={memo.name}>
+                      {props.renderer(memo, { compact: effectiveCompact })}
+                    </div>
+                  );
+                }
+                const index = displayMemoList.indexOf(memo);
+                const placeholder = props.dragSort && flowDrag.dragging === index;
+                return (
+                  <div
+                    key={getMemoKey(memo)}
+                    data-memo-name={memo.name}
+                    data-reorder-position={position}
+                    data-reorder-key={memo.name}
+                    data-reorder-placeholder={placeholder || undefined}
+                    onPointerDown={props.dragSort ? flowDrag.pointerDown(index, { longPress: true }) : undefined}
+                    onKeyDown={props.dragSort ? flowDrag.keyDown(index) : undefined}
+                    aria-hidden={placeholder || undefined}
+                    className={cn(
+                      "relative",
+                      focusedName === memo.name && "rounded-mu-lg outline-2 outline-offset-2 outline-mu-line",
+                      placeholder && "[&>*]:opacity-0",
+                    )}
+                  >
+                    {props.renderer(memo, { compact: effectiveCompact })}
+                    {focusedName === memo.name && (
+                      <p className="pointer-events-none absolute -bottom-5 start-2 z-10 mu-caption text-mu-text-secondary">
+                        {t("memo.focus-cue")}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+              <div className="mt-2 flex items-center gap-1">
+                <MemoFilterPopover />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label={t("shortcut.title")}
+                  onClick={() => openShortcuts(true)}
+                  icon={<KeyboardIcon />}
+                />
+              </div>
               {emptyPlaceholder}
               {!isDisplayPending && footer}
             </>
           )}
         </div>
       </div>
+
+      {/* The lifted memo follows the pointer above everything; its card shows the drop slot. */}
+      {draggedMemo &&
+        flowDrag.grab &&
+        createPortal(
+          <div
+            ref={flowDrag.ghostRef}
+            className="pointer-events-none fixed start-0 top-0 z-(--mu-layer-popup) max-w-(--mu-popover-width) rounded-mu-lg border border-mu-edge bg-mu-surface px-4 py-3 shadow-lg [scale:1.03]"
+            style={{
+              width: flowDrag.grab.width,
+              height: flowDrag.grab.height,
+              translate: `${flowDrag.grab.left}px ${flowDrag.grab.top}px`,
+            }}
+          >
+            <p className="line-clamp-6 mu-body text-mu-text whitespace-pre-wrap">{draggedMemo.snippet || draggedMemo.content}</p>
+          </div>,
+          document.body,
+        )}
     </MentionResolutionProvider>
   );
 

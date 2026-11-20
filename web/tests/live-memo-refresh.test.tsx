@@ -24,6 +24,7 @@ vi.mock("@/hooks/useAttachmentQueries", () => ({
 }));
 
 vi.mock("@/hooks/useMemoQueries", () => ({
+  useReorderMemos: () => ({ mutate: () => undefined }),
   memoKeys: {
     all: ["memos"],
   },

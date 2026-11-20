@@ -18,8 +18,8 @@ interface EditorProps {
   placeholder: string;
   onContentChange: (content: string) => void;
   onFiles: (files: File[], origin: EditorFileOrigin) => void;
-  /** Invoked by the in-editor save shortcut (Cmd/Ctrl+Enter). */
-  onSubmit: () => void;
+  /** Invoked by the in-editor save shortcut (Ctrl/⌘+S and ⌘+Enter). */
+  onSave: () => void;
   isFocusMode?: boolean;
   /** Rich text, or the whole memo as Markdown text. Switching changes no text. */
   mode?: EditorMode;
@@ -38,16 +38,18 @@ const EDITOR_ATTRIBUTES = {
 
 /** The composer's editor: MemoMarkdown, editable, with the composer's extensions, behind the EditorController contract. */
 const Editor = forwardRef(function Editor(props: EditorProps, ref: React.ForwardedRef<EditorController>) {
-  const { className, value, placeholder, onContentChange, onFiles, onSubmit, isFocusMode, mode, attachments } = props;
+  const { className, value, placeholder, onContentChange, onFiles, onSave, isFocusMode, mode, attachments } = props;
   const t = useTranslate();
   const editorRef = useRef<MarkdownEditorInstance | null>(null);
   // The extensions read the latest callbacks through refs, written after commit so
   // a render React discards never leaves its callbacks behind.
   const onContentChangeRef = useRef(onContentChange);
   const onFilesRef = useRef(onFiles);
+  const onSaveRef = useRef(onSave);
   useLayoutEffect(() => {
     onContentChangeRef.current = onContentChange;
     onFilesRef.current = onFiles;
+    onSaveRef.current = onSave;
   });
   // A user can only author their own memos. Reuse the current-user stats query
   // instead of fetching and aggregating every user's tags for autocomplete.
@@ -74,6 +76,7 @@ const Editor = forwardRef(function Editor(props: EditorProps, ref: React.Forward
         onFiles: (files, origin) => onFilesRef.current(files, origin),
         // Read once, like the rest: the popup keeps the language the composer opened in.
         emojiLabel: t("editor.blocks.emoji"),
+        onSave: () => onSaveRef.current(),
       }),
     [],
   );
@@ -90,7 +93,6 @@ const Editor = forwardRef(function Editor(props: EditorProps, ref: React.Forward
           value={value}
           editable
           onChange={onContentChange}
-          onSubmit={onSubmit}
           placeholder={placeholder}
           mode={mode}
           attachments={attachments}

@@ -1,6 +1,8 @@
 import { Code, ConnectError } from "@connectrpc/connect";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import PagedMemoList from "@/components/PagedMemoList";
 import type { Memo } from "@/types/proto/api/memo_service_pb";
@@ -26,6 +28,7 @@ const readiness = vi.hoisted(() => ({ userSettings: true }));
 const memoQuery = vi.hoisted(() => ({ request: undefined as Record<string, unknown> | undefined }));
 
 vi.mock("@/hooks/useMemoQueries", () => ({
+  useReorderMemos: () => ({ mutate: () => undefined }),
   useInfiniteMemos: (request: Record<string, unknown>) => {
     memoQuery.request = request;
     return {
@@ -84,11 +87,13 @@ const renderList = (
 ) =>
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <PagedMemoList
-        renderer={renderer}
-        renderLeading={options.leading ? () => options.leading : undefined}
-        emptyState={options.emptyState}
-      />
+      <MemoryRouter>
+        <PagedMemoList
+          renderer={renderer}
+          renderLeading={options.leading ? () => options.leading : undefined}
+          emptyState={options.emptyState}
+        />
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 
@@ -277,7 +282,9 @@ describe("<PagedMemoList>", () => {
   it("combines the selected Space filter with the memo list filter", () => {
     render(
       <QueryClientProvider client={new QueryClient()}>
-        <PagedMemoList renderer={() => <div />} contextFilter={'space == "spaces/product"'} filter="pinned == true" />
+        <MemoryRouter>
+          <PagedMemoList renderer={() => <div />} contextFilter={'space == "spaces/product"'} filter="pinned == true" />
+        </MemoryRouter>
       </QueryClientProvider>,
     );
 

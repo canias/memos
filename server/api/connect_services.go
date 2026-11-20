@@ -771,3 +771,45 @@ func (s *ConnectServiceHandler) DeleteIdentityProvider(ctx context.Context, req 
 	}
 	return connect.NewResponse(resp), nil
 }
+
+// ScheduleService
+
+func (s *ConnectServiceHandler) CreateSchedule(ctx context.Context, req *connect.Request[apipb.CreateScheduleRequest]) (*connect.Response[apipb.Schedule], error) {
+	resp, err := s.APIService.CreateSchedule(ctx, req.Msg)
+	if err != nil {
+		return nil, convertGRPCError(err)
+	}
+	return connect.NewResponse(resp), nil
+}
+
+func (s *ConnectServiceHandler) GetSchedule(ctx context.Context, req *connect.Request[apipb.GetScheduleRequest]) (*connect.Response[apipb.Schedule], error) {
+	resp, err := s.APIService.GetSchedule(ctx, req.Msg)
+	if err != nil {
+		return nil, convertGRPCError(err)
+	}
+	return connect.NewResponse(resp), nil
+}
+
+func (s *ConnectServiceHandler) ListSchedules(ctx context.Context, req *connect.Request[apipb.ListSchedulesRequest]) (*connect.Response[apipb.ListSchedulesResponse], error) {
+	resp, err := s.APIService.ListSchedules(ctx, req.Msg)
+	if err != nil {
+		return nil, convertGRPCError(err)
+	}
+	return connect.NewResponse(resp), nil
+}
+
+func (s *ConnectServiceHandler) UpdateSchedule(ctx context.Context, req *connect.Request[apipb.UpdateScheduleRequest]) (*connect.Response[apipb.Schedule], error) {
+	resp, err := s.APIService.UpdateSchedule(ctx, req.Msg)
+	if err != nil {
+		return nil, convertGRPCError(err)
+	}
+	return connect.NewResponse(resp), nil
+}
+
+func (s *ConnectServiceHandler) DeleteSchedule(ctx context.Context, req *connect.Request[apipb.DeleteScheduleRequest]) (*connect.Response[emptypb.Empty], error) {
+	resp, err := s.APIService.DeleteSchedule(ctx, req.Msg)
+	if err != nil {
+		return nil, convertGRPCError(err)
+	}
+	return connect.NewResponse(resp), nil
+}

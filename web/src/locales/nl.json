@@ -379,7 +379,9 @@
       "has-link": "heeftLink",
       "has-location": "heeft locatie",
       "has-task-list": "heeftTakenlijst",
-      "remove": "Filter verwijderen"
+      "remove": "Filter verwijderen",
+      "any-visibility": "Any audience",
+      "title": "Filter memos"
     },
     "compact-mode": "Compacte modus",
     "link-preview": "Linkvoorbeeld",
@@ -454,7 +456,15 @@
     "add-reaction": "Reactie toevoegen",
     "remove-reaction": "Reactie verwijderen",
     "full-width": "Volledige breedte",
-    "full-width-hint": "Gebruik de volledige breedte van de memotijdlijn."
+    "full-width-hint": "Gebruik de volledige breedte van de memotijdlijn.",
+    "manual-order": "Manual (drag) order",
+    "manual-order-hint": "Drag memos to arrange them; the order is remembered",
+    "focus-cue": "enter opens · e edits in place",
+    "change-date": "Change date",
+    "view-details": "View details",
+    "inline-save-failed": "Couldn't save the edit yet. It stays in the card and retries.",
+    "inline-edit-placeholder": "Edit in place; it saves as you pause",
+    "change-date-failed": "Couldn't move the memo yet. Try again."
   },
   "message": {
     "archived-successfully": "Succesvol gearchiveerd",
@@ -1428,5 +1438,60 @@
     "back": "{{seconds}} seconden terug",
     "forward": "{{seconds}} seconden vooruit",
     "speed": "Afspeelsnelheid {{rate}}x"
+  },
+  "shortcut": {
+    "title": "Sneltoetsen",
+    "group": {
+      "feed": "Memoslijst",
+      "editor": "Editor",
+      "memo": "Memo's"
+    },
+    "feed": {
+      "next": "Naar de volgende memo",
+      "previous": "Naar de vorige memo",
+      "open": "De gefocuste memo openen",
+      "search": "Memo's doorzoeken",
+      "filters": "Filteropties openen",
+      "clear": "Focus wissen",
+      "cheatsheet": "Deze spiekbrief tonen"
+    },
+    "editor": {
+      "cycle-task": "Regel laten wisselen: te doen, bezig, klaar, normaal",
+      "move-line": "Regel of taak omhoog/omlaag verplaatsen",
+      "save": "De memo opslaan"
+    },
+    "memo": {
+      "edit-in-place": "Memo ter plekke bewerken",
+      "change-date": "Klik op een memodatum om hem te verplaatsen"
+    }
+  },
+  "schedule": {
+    "title": "Schedule memo",
+    "start": "Publish at",
+    "kind": {
+      "once": "Once",
+      "every-days": "Every N days",
+      "weekdays": "On weekdays"
+    },
+    "every-n-days": "Every {count} day(s)",
+    "create": "Create plan",
+    "created": "Scheduled. It will publish at the chosen time.",
+    "create-failed": "Couldn't create the schedule yet. Try again.",
+    "empty-content": "Write the memo first, then schedule it.",
+    "upcoming": "Upcoming",
+    "upcoming-hint": "Plans that will publish memos on their own",
+    "next-run": "Next publish",
+    "recurring": "Recurring",
+    "delete": "Delete plan",
+    "delete-failed": "Couldn't delete the plan yet. Try again."
+  },
+  "weekday": {
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat",
+    "sunday": "Sun"
   }
 }

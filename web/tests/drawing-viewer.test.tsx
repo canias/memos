@@ -45,7 +45,11 @@ vi.mock("@usememos/canvas/react", () => ({
   }),
 }));
 vi.mock("@/components/MemoEditor/edit/services/uploadService", () => ({ uploadService: { uploadFile: mocks.uploadFile } }));
-vi.mock("@/hooks/useMemoQueries", () => ({ useUpdateMemo: () => ({ mutateAsync: mocks.updateMemo }) }));
+
+vi.mock("@/hooks/useMemoQueries", () => ({
+  useReorderMemos: () => ({ mutate: () => undefined }),
+  useUpdateMemo: () => ({ mutateAsync: mocks.updateMemo }),
+}));
 vi.mock("@/connect", () => ({ memoServiceClient: { getMemo: mocks.getMemo } }));
 vi.mock("@/hooks/useCurrentUser", () => ({ default: () => mocks.currentUser }));
 vi.mock("@/utils/i18n", async (importOriginal) => ({

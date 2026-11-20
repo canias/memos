@@ -1,4 +1,30 @@
 {
+  "shortcut": {
+    "title": "Keyboard shortcuts",
+    "group": {
+      "feed": "Memo list",
+      "editor": "Editor",
+      "memo": "Memos"
+    },
+    "feed": {
+      "next": "Move to the next memo",
+      "previous": "Move to the previous memo",
+      "open": "Open the focused memo",
+      "search": "Search memos",
+      "filters": "Open the filter options",
+      "clear": "Clear the focus",
+      "cheatsheet": "Show this cheat sheet"
+    },
+    "editor": {
+      "cycle-task": "Cycle a line: todo, doing, done, plain",
+      "move-line": "Move the line or task up or down",
+      "save": "Save the memo"
+    },
+    "memo": {
+      "edit-in-place": "Edit a memo in place",
+      "change-date": "Click a memo's date to move it"
+    }
+  },
   "map": {
     "selection": "Selected memos",
     "loaded": "{{count}} loaded",
@@ -482,18 +508,23 @@
     "delete-confirm-description": "This action is irreversible. Attachments, links, and references will also be removed.",
     "direction": "Direction",
     "filters": {
+      "any-visibility": "Any audience",
       "has-attachments": "hasAttachments",
       "has-code": "hasCode",
       "has-image": "hasImage",
       "has-link": "hasLink",
       "has-location": "hasLocation",
       "has-task-list": "hasTaskList",
-      "remove": "Remove filter"
+      "remove": "Remove filter",
+      "title": "Filter memos"
     },
     "compact-mode": "Compact mode",
     "full-width": "Full width",
     "connections": "Connections",
     "grid-compact-hint": "Collapse longer memos. Always enabled for grid layouts.",
+    "focus-cue": "enter opens · e edits in place",
+    "manual-order": "Manual (drag) order",
+    "manual-order-hint": "Drag memos to arrange them; the order is remembered",
     "full-width-hint": "Use entire width of the memo timeline.",
     "layout": "Layout",
     "layout-auto": "Auto",
@@ -556,7 +587,12 @@
       "space-description": "Everyone in {{space}}"
     },
     "add-reaction": "Add reaction",
-    "remove-reaction": "Remove reaction"
+    "remove-reaction": "Remove reaction",
+    "change-date": "Change date",
+    "view-details": "View details",
+    "inline-save-failed": "Couldn't save the edit yet. It stays in the card and retries.",
+    "inline-edit-placeholder": "Edit in place; it saves as you pause",
+    "change-date-failed": "Couldn't move the memo yet. Try again."
   },
   "message": {
     "archived-successfully": "Archived successfully",
@@ -1428,5 +1464,34 @@
     "back": "Back {{seconds}} seconds",
     "forward": "Forward {{seconds}} seconds",
     "speed": "Playback speed {{rate}}x"
+  },
+  "schedule": {
+    "title": "Schedule memo",
+    "start": "Publish at",
+    "kind": {
+      "once": "Once",
+      "every-days": "Every N days",
+      "weekdays": "On weekdays"
+    },
+    "every-n-days": "Every {count} day(s)",
+    "create": "Create plan",
+    "created": "Scheduled. It will publish at the chosen time.",
+    "create-failed": "Couldn't create the schedule yet. Try again.",
+    "empty-content": "Write the memo first, then schedule it.",
+    "upcoming": "Upcoming",
+    "upcoming-hint": "Plans that will publish memos on their own",
+    "next-run": "Next publish",
+    "recurring": "Recurring",
+    "delete": "Delete plan",
+    "delete-failed": "Couldn't delete the plan yet. Try again."
+  },
+  "weekday": {
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat",
+    "sunday": "Sun"
   }
 }

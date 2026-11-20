@@ -21,8 +21,14 @@ export interface MemoViewContextValue {
   blurred: boolean;
   /** Whether the card shows the memo's editing session in place of its body. */
   isEditing: boolean;
+  /** Whether the body itself is the editor: the rendered memo turned editable in place. */
+  isLeanEditing: boolean;
   openEditor: () => void;
+  /** Starts the lean in-place edit (no composer chrome); the body autosaves. */
+  openLeanEditor: () => void;
   closeEditor: () => void;
+  /** Ends the lean in-place edit. */
+  closeLeanEditor: () => void;
   /** The session reports focus mode so the card's layout can let it take the viewport. */
   onEditorFocusModeChange: (isFocusMode: boolean) => void;
   toggleBlurVisibility: () => void;

@@ -9,6 +9,7 @@ import { useEditorContext, useEditorSelector } from "../state";
 import type { EditorToolbarProps } from "../types";
 import AudienceMenu from "./AudienceMenu";
 import InsertMenu from "./InsertMenu";
+import ScheduleDraftMenu from "./ScheduleDraftMenu";
 
 export const EditorToolbar: FC<EditorToolbarProps> = ({
   onSave,
@@ -22,6 +23,7 @@ export const EditorToolbar: FC<EditorToolbarProps> = ({
   sourceMode,
   onInsertImages,
   onDrawingClick,
+  onSchedule,
 }) => {
   const t = useTranslate();
   const { actions, dispatch } = useEditorContext();
@@ -74,14 +76,14 @@ export const EditorToolbar: FC<EditorToolbarProps> = ({
             loading={isSaving}
             loadingLabel={loadingLabel}
             aria-describedby={blockedMessage ? blockedReasonId : undefined}
-            aria-keyshortcuts="Meta+Enter Control+Enter"
+            aria-keyshortcuts="Meta+S Control+S"
           />
         }
       >
         {commitLabel}
       </Tooltip.Trigger>
       {/* The save shortcut shows in the tooltip, so the primary action reads as a plain verb. */}
-      <Tooltip.Popup side="top" shortcut={blockedMessage ? undefined : `${primaryModifierGlyph()} Enter`}>
+      <Tooltip.Popup side="top" shortcut={blockedMessage ? undefined : `${primaryModifierGlyph()} S`}>
         {blockedMessage ?? (drawingSaveError ? t(drawingSaveError) : commitLabel)}
       </Tooltip.Popup>
       {blockedMessage && (
@@ -119,6 +121,12 @@ export const EditorToolbar: FC<EditorToolbarProps> = ({
       </div>
 
       <div className="flex shrink-0 flex-row items-center justify-end gap-1">
+        {onSchedule && (
+          <ScheduleDraftMenu
+            disabled={isSaving || !valid}
+            onConfirm={(draft) => onSchedule({ ...draft, visibility, ...(space ? { space } : {}) })}
+          />
+        )}
         {onCancel && (
           <Button variant="ghost" onClick={onCancel} disabled={isSaving}>
             {t("common.cancel")}

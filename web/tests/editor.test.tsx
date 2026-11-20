@@ -27,7 +27,7 @@ const baseProps = {
   placeholder: "memo",
   onContentChange: () => {},
   onFiles: () => {},
-  onSubmit: () => {},
+  onSave: () => {},
 };
 
 describe("Editor", () => {

@@ -14,11 +14,13 @@ import MemoActionMenu from "../../MemoActionMenu";
 import { ReactionSelector } from "../../MemoReactionListView";
 import UserAvatar from "../../UserAvatar";
 import VisibilityIcon from "../../VisibilityIcon";
+
 import { MEMO_TIME_CONTROL_CLASSES } from "../constants";
 import { useMemoViewContext, useMemoViewDerived } from "../MemoViewContext";
 import { createMemoNavigationState, isMemoDetailPath } from "../navigation";
 import type { MemoHeaderProps } from "../types";
 import MemoSpaceBadge from "./MemoSpaceBadge";
+import MemoTimeEditorPopover from "./MemoTimeEditorPopover";
 
 /** The card's trailing actions are the package's 24px ghost squares (`sm`), whether or not they are package buttons. */
 const MEMO_HEADER_ACTION_CLASSES = buttonClasses({ variant: "ghost", size: "sm", iconOnly: true });
@@ -72,13 +74,20 @@ const MemoHeader: React.FC<MemoHeaderProps> = ({ timeDisplay = "relative", showC
         {/* The time stays visible while the creator and Space badge can shrink and truncate. */}
         <div data-slot="memo-header-meta" className="flex min-w-0 items-center gap-1.5 overflow-hidden">
           {showsCreator && creator && <CreatorDisplay creator={creator} />}
-          <TimeDisplay
-            displayTime={displayTime}
-            timeTooltip={timeTooltip}
-            memoName={memo.name}
-            parentPage={parentPage}
-            isCurrentPage={isMemoDetailPath(location.pathname, memo.name)}
-          />
+          {/* The owner moves the memo in one click on its date; readers keep the permalink. */}
+          {memo.creator && currentUser && memo.creator === currentUser.name && !isArchived && createTime ? (
+            <MemoTimeEditorPopover memoName={memo.name} createTime={createTime} parentPage={parentPage}>
+              {displayTime}
+            </MemoTimeEditorPopover>
+          ) : (
+            <TimeDisplay
+              displayTime={displayTime}
+              timeTooltip={timeTooltip}
+              memoName={memo.name}
+              parentPage={parentPage}
+              isCurrentPage={isMemoDetailPath(location.pathname, memo.name)}
+            />
+          )}
           {spaceMetadata}
         </div>
         {isNew && <NewBadge />}

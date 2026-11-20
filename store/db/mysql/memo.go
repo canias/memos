@@ -207,6 +207,10 @@ func (d *DB) ListMemos(ctx context.Context, find *store.FindMemo) ([]*store.Memo
 	if find.OrderByPinned {
 		orderBy = append(orderBy, "`pinned` DESC")
 	}
+	if find.OrderByOrderValue {
+		// Memos without a drag order follow their time order after the ordered ones.
+		orderBy = append(orderBy, "`order_no` IS NULL", "`order_no` ASC")
+	}
 	if find.OrderByUpdatedTs {
 		orderBy = append(orderBy, "`updated_ts` "+order)
 	} else {
@@ -225,6 +229,7 @@ func (d *DB) ListMemos(ctx context.Context, find *store.FindMemo) ([]*store.Memo
 		"`memo`.`pinned` AS `pinned`",
 		"`memo`.`payload` AS `payload`",
 		"`memo`.`space_id` AS `space_id`",
+		"`memo`.`order_no` AS `order_no`",
 		`(SELECT parent_memo.uid
 			FROM memo_relation AS parent_relation
 			JOIN memo AS parent_memo ON parent_memo.id = parent_relation.related_memo_id
@@ -269,6 +274,7 @@ func (d *DB) ListMemos(ctx context.Context, find *store.FindMemo) ([]*store.Memo
 			&memo.Pinned,
 			&payloadBytes,
 			&memo.SpaceID,
+			&memo.OrderValue,
 			&memo.ParentUID,
 		}
 		if !find.ExcludeContent {

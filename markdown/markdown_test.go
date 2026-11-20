@@ -15,6 +15,90 @@ func TestNewService(t *testing.T) {
 	assert.NotNil(t, svc)
 }
 
+func TestExtractPropertiesDoingTask(t *testing.T) {
+	svc := NewService()
+
+	tests := []struct {
+		name     string
+		content  string
+		hasTasks bool
+		hasInc   bool
+	}{
+		{
+			name:     "doing task",
+			content:  "- [/] In progress task",
+			hasTasks: true,
+			hasInc:   true,
+		},
+		{
+			name:     "mixed task states",
+			content:  "- [x] Done task\n- [/] In progress task\n- [ ] Todo task",
+			hasTasks: true,
+			hasInc:   true,
+		},
+		{
+			name:     "doing task alone in nested item",
+			content:  "- [ ] Todo task\n  - [/] In progress task",
+			hasTasks: true,
+			hasInc:   true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			property, err := svc.ExtractProperties([]byte(tt.content))
+			require.NoError(t, err)
+			require.NotNil(t, property)
+			assert.Equal(t, tt.hasTasks, property.HasTaskList)
+			assert.Equal(t, tt.hasInc, property.HasIncompleteTasks)
+		})
+	}
+}
+
+func TestRenderMarkdownTaskStates(t *testing.T) {
+	svc := NewService()
+
+	tests := []struct {
+		name     string
+		content  string
+		expected string
+	}{
+		{
+			name:     "todo task round trip",
+			content:  "- [ ] Todo task",
+			expected: "- [ ] Todo task",
+		},
+		{
+			name:     "doing task round trip",
+			content:  "- [/] In progress task",
+			expected: "- [/] In progress task",
+		},
+		{
+			name:     "done task round trip",
+			content:  "- [x] Done task",
+			expected: "- [x] Done task",
+		},
+		{
+			name:     "doing and plain markers mixed",
+			content:  "- [ ] Todo task\n- [/] In progress task",
+			expected: "- [ ] Todo task\n- [/] In progress task",
+		},
+		{
+			name:     "unknown marker stays text",
+			content:  "- [q] Not a task marker",
+			expected: "- [q] Not a task marker",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rendered, err := svc.RenderMarkdown([]byte(tt.content))
+			require.NoError(t, err)
+			assert.Equal(t, tt.expected, strings.TrimSuffix(rendered, "\n"))
+		})
+	}
+}
+
 func TestValidateContent(t *testing.T) {
 	svc := NewService()
 

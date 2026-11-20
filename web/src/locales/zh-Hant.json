@@ -459,7 +459,9 @@
       "has-link": "有連結",
       "has-location": "有位置",
       "has-task-list": "有待辦事項",
-      "remove": "移除篩選條件"
+      "remove": "移除篩選條件",
+      "any-visibility": "Any audience",
+      "title": "Filter memos"
     },
     "compact-mode": "精簡模式",
     "grid-compact-hint": "摺疊較長的備忘錄。網格版面一律啟用此選項。",
@@ -533,7 +535,15 @@
     "add-reaction": "新增表情回應",
     "remove-reaction": "移除表情回應",
     "full-width": "全寬顯示",
-    "full-width-hint": "使用備忘錄時間軸的完整寬度。"
+    "full-width-hint": "使用備忘錄時間軸的完整寬度。",
+    "manual-order": "Manual (drag) order",
+    "manual-order-hint": "Drag memos to arrange them; the order is remembered",
+    "focus-cue": "enter opens · e edits in place",
+    "change-date": "Change date",
+    "view-details": "View details",
+    "inline-save-failed": "Couldn't save the edit yet. It stays in the card and retries.",
+    "inline-edit-placeholder": "Edit in place; it saves as you pause",
+    "change-date-failed": "Couldn't move the memo yet. Try again."
   },
   "message": {
     "archived-successfully": "封存成功",
@@ -1428,5 +1438,60 @@
     "back": "倒退 {{seconds}} 秒",
     "forward": "快轉 {{seconds}} 秒",
     "speed": "播放速度 {{rate}}x"
+  },
+  "shortcut": {
+    "title": "鍵盤快速鍵",
+    "group": {
+      "feed": "備忘清單",
+      "editor": "編輯器",
+      "memo": "備忘"
+    },
+    "feed": {
+      "next": "移到下一則備忘",
+      "previous": "移到上一則備忘",
+      "open": "開啟聚焦的備忘",
+      "search": "搜尋備忘",
+      "filters": "開啟篩選選項",
+      "clear": "清除聚焦",
+      "cheatsheet": "顯示此速查表"
+    },
+    "editor": {
+      "cycle-task": "循環切換行狀態:待辦、進行中、完成、一般",
+      "move-line": "上下移動該行或任務",
+      "save": "儲存備忘"
+    },
+    "memo": {
+      "edit-in-place": "在原位直接編輯備忘",
+      "change-date": "點擊備忘日期即可移動它"
+    }
+  },
+  "schedule": {
+    "title": "Schedule memo",
+    "start": "Publish at",
+    "kind": {
+      "once": "Once",
+      "every-days": "Every N days",
+      "weekdays": "On weekdays"
+    },
+    "every-n-days": "Every {count} day(s)",
+    "create": "Create plan",
+    "created": "Scheduled. It will publish at the chosen time.",
+    "create-failed": "Couldn't create the schedule yet. Try again.",
+    "empty-content": "Write the memo first, then schedule it.",
+    "upcoming": "Upcoming",
+    "upcoming-hint": "Plans that will publish memos on their own",
+    "next-run": "Next publish",
+    "recurring": "Recurring",
+    "delete": "Delete plan",
+    "delete-failed": "Couldn't delete the plan yet. Try again."
+  },
+  "weekday": {
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat",
+    "sunday": "Sun"
   }
 }

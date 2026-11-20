@@ -31,11 +31,13 @@ Memo content uses 16px text on 24px lines with 12px between blocks; the editor k
 
 Code blocks use lazy-loaded `@pierre/highlights` tokens as editor decorations, without an HTML conversion. GitHub Light and GitHub Dark Dimmed colors follow the document's color scheme; ordinary text and structural punctuation keep the editor's text color. Unsupported languages, unavailable WebAssembly, or browsers without `light-dark()` colors leave the code as plain text. Highlighting never changes the saved Markdown.
 
+Editing keys (`edit/hotkeys.ts`, bound before the editor's defaults): `Ctrl/⌘+S` and `⌘+Enter` save (the toolbar's tooltip shows the chord), `Ctrl+Enter` cycles the caret line's task state (todo → doing `[/]` → done → plain; a non-task list line becomes a todo), and `Alt+↑/↓` moves the line or list item with its nested subtree. The `[/]` doing marker is part of the memo Markdown engine (`markdown/`), renders amber in memo bodies, and counts as an incomplete task.
+
 ## Data
 
 - **Reads are by name.** `useMemoByName` (`hooks/useMemoQueries.ts`) returns the freshest copy of the memo any query holds (a list, a comment page, the calendar month, a detail, a shared memo) and fetches the detail only when nothing holds it. A card in a list therefore costs no request beyond the list's, follows the list's refetches, and never refetches on its own.
 - **Writes are mutations.** A ticked task, a save and a new memo go through `useUpdateMemo` and `useCreateMemo`, which patch and refresh every query holding the memo, so the saved text shows wherever the memo is on the page as soon as the server answers.
-- **The draft is UI state keyed by identity.** `edit/draftKey.ts` derives the key from what is edited: `edit:<name>`, `comment:<parent>`, `new:<scope>[:<space>]`. `initialEditorState` computes the store's first state once, from the memo or the persisted draft over the host's defaults; `useAutoSave` persists it while the session is open; an edit of an existing memo persists no draft. A new identity is a new session (`key`).
+- **The draft is UI state keyed by identity.** `edit/draftKey.ts` derives the key from what is edited: `edit:<name>`, `comment:<parent>`, `new:<scope>[:<space>]`. `initialEditorState` computes the store's first state once, from the memo or the persisted draft over the host's defaults; `useAutoSave` persists it while the session is open; an edit of an existing memo persists its draft and restores it on reopen (a draft that only repeats the memo clears itself). A new identity is a new session (`key`).
 
 ## The editing session
 

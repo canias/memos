@@ -24,11 +24,13 @@ function MemoDisplaySettingsContent() {
   const {
     orderByTimeAsc,
     timeBasis,
+    manualOrder,
     compactMode,
     fullWidth,
     maxColumns,
     setTimeBasis,
     setOrderByTimeAsc,
+    setManualOrder,
     setCompactMode,
     setFullWidth,
     setMaxColumns,
@@ -102,6 +104,14 @@ function MemoDisplaySettingsContent() {
             <Select.Item value="asc">{sortOrderOptions.asc}</Select.Item>
           </Select.Popup>
         </Select.Root>
+      </Field.Root>
+
+      <Separator />
+
+      <Field.Root orientation="horizontal" size="md">
+        <Field.Label>{t("memo.manual-order")}</Field.Label>
+        <Field.Description className="w-0 min-w-full">{t("memo.manual-order-hint")}</Field.Description>
+        <Switch checked={manualOrder} onCheckedChange={setManualOrder} />
       </Field.Root>
 
       <Separator />

@@ -23,9 +23,10 @@ export const markdownStyles = {
   // Relative size so code inside headings scales with the heading.
   inlineCode: "font-mono text-[0.875em] bg-mu-well px-1 py-0.5 rounded-mu-md",
   codeBlock: "rich:bg-mu-well!",
-  // Keep the editor's white checkmark readable when Dark uses a pale accent.
+  // Todo boxes match the app's own checkboxes: the same edge and accent in both schemes, so a
+  // checked box reads as a control and its checkmark stays legible on a pale dark-mode accent.
   taskList:
-    "[--mbe-border:var(--mu-control-edge)] [--mbe-accent:light-dark(var(--mu-accent),color-mix(in_oklab,var(--mu-accent)_55%,var(--mu-surface)))]",
+    "[--mbe-border:var(--mu-control-edge)] [--mbe-accent:light-dark(var(--mu-accent),color-mix(in_oklab,var(--mu-accent)_55%,var(--mu-surface)))] [--mbe-radius:var(--mu-radius-sm)]",
   link: "text-mu-accent underline decoration-mu-accent/50 underline-offset-2 transition-colors hover:decoration-mu-accent",
   image: "max-w-full my-2 rounded-mu-lg",
 } as const;

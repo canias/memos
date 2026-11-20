@@ -36,6 +36,7 @@ vi.mock("@/contexts/MentionResolutionContext", () => ({ useResolvedMentionUserna
 vi.mock("@/hooks/useNavigateTo", () => ({ default: () => state.navigateTo }));
 vi.mock("@/hooks/useNearViewport", () => ({ useNearViewport: () => ({ ref: () => {}, isNearViewport: true }) }));
 vi.mock("@/hooks/useMemoQueries", () => ({
+  useReorderMemos: () => ({ mutate: () => undefined }),
   useLinkMetadata: () => ({
     data: { url: "https://example.com", title: "Example Title", description: "An example site", image: "" },
     isSuccess: true,

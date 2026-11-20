@@ -378,7 +378,9 @@
       "has-link": "يحتوي على رابط",
       "has-location": "يحتوي على موقع",
       "has-task-list": "يحتوي على قائمة مهام",
-      "remove": "إزالة عامل التصفية"
+      "remove": "إزالة عامل التصفية",
+      "any-visibility": "Any audience",
+      "title": "Filter memos"
     },
     "compact-mode": "الوضع المضغوط",
     "link-preview": "معاينة الرابط",
@@ -453,7 +455,15 @@
     "add-reaction": "إضافة رد فعل",
     "remove-reaction": "إزالة التفاعل",
     "full-width": "العرض الكامل",
-    "full-width-hint": "استخدام العرض الكامل للخط الزمني للمذكرات."
+    "full-width-hint": "استخدام العرض الكامل للخط الزمني للمذكرات.",
+    "manual-order": "Manual (drag) order",
+    "manual-order-hint": "Drag memos to arrange them; the order is remembered",
+    "focus-cue": "enter opens · e edits in place",
+    "change-date": "Change date",
+    "view-details": "View details",
+    "inline-save-failed": "Couldn't save the edit yet. It stays in the card and retries.",
+    "inline-edit-placeholder": "Edit in place; it saves as you pause",
+    "change-date-failed": "Couldn't move the memo yet. Try again."
   },
   "message": {
     "archived-successfully": "تمت الأرشفة بنجاح",
@@ -1432,5 +1442,60 @@
     "back": "الرجوع {{seconds}} ثوانٍ",
     "forward": "التقدم {{seconds}} ثوانٍ",
     "speed": "سرعة التشغيل {{rate}}x"
+  },
+  "shortcut": {
+    "title": "اختصارات لوحة المفاتيح",
+    "group": {
+      "feed": "قائمة المذكرات",
+      "editor": "المحرر",
+      "memo": "المذكرات"
+    },
+    "feed": {
+      "next": "الانتقال إلى المذكرة التالية",
+      "previous": "الانتقال إلى المذكرة السابقة",
+      "open": "فتح المذكرة المركّز عليها",
+      "search": "البحث في المذكرات",
+      "filters": "فتح خيارات التصفية",
+      "clear": "إلغاء التركيز",
+      "cheatsheet": "إظهار ورقة الاختصارات"
+    },
+    "editor": {
+      "cycle-task": "تدوير حالة السطر: مهام قائمة، قيد التنفيذ، منجزة، عادي",
+      "move-line": "نقل السطر أو المهمة لأعلى/أسفل",
+      "save": "حفظ المذكرة"
+    },
+    "memo": {
+      "edit-in-place": "تحرير المذكرة في مكانها",
+      "change-date": "انقر على تاريخ المذكرة لنقلها"
+    }
+  },
+  "schedule": {
+    "title": "Schedule memo",
+    "start": "Publish at",
+    "kind": {
+      "once": "Once",
+      "every-days": "Every N days",
+      "weekdays": "On weekdays"
+    },
+    "every-n-days": "Every {count} day(s)",
+    "create": "Create plan",
+    "created": "Scheduled. It will publish at the chosen time.",
+    "create-failed": "Couldn't create the schedule yet. Try again.",
+    "empty-content": "Write the memo first, then schedule it.",
+    "upcoming": "Upcoming",
+    "upcoming-hint": "Plans that will publish memos on their own",
+    "next-run": "Next publish",
+    "recurring": "Recurring",
+    "delete": "Delete plan",
+    "delete-failed": "Couldn't delete the plan yet. Try again."
+  },
+  "weekday": {
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat",
+    "sunday": "Sun"
   }
 }

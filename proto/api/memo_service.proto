@@ -283,6 +283,11 @@ message Memo {
   // creation.
   google.protobuf.Timestamp update_time = 17 [(google.api.field_behavior) = OPTIONAL];
 
+  // Optional. The memo's position in its creator's manual order: the feed keeps
+  // order values set by dragging, and memos without one follow their time order
+  // under the `order` sort. Ignored on creation; change it with UpdateMemo.
+  optional double order = 18 [(google.api.field_behavior) = OPTIONAL];
+
   // Property holds properties computed from the memo content.
   message Property {
     // The text of the H1 heading when it is the first block of the content.
@@ -390,7 +395,7 @@ message UpdateMemoRequest {
   Memo memo = 1 [(google.api.field_behavior) = REQUIRED];
 
   // Required. The fields to update. Supported paths: content, visibility,
-  // space, pinned, state, create_time, update_time, location, attachments,
+  // space, pinned, state, create_time, update_time, order, location, attachments,
   // relations.
   google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = REQUIRED];
 }

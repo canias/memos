@@ -374,7 +374,9 @@
       "has-link": "Memiliki tautan",
       "has-location": "Memiliki lokasi",
       "has-task-list": "Memiliki daftar tugas",
-      "remove": "Hapus filter"
+      "remove": "Hapus filter",
+      "any-visibility": "Any audience",
+      "title": "Filter memos"
     },
     "compact-mode": "Mode ringkas",
     "link-preview": "Pratinjau tautan",
@@ -449,7 +451,15 @@
     "add-reaction": "Tambahkan reaksi",
     "remove-reaction": "Hapus reaksi",
     "full-width": "Lebar penuh",
-    "full-width-hint": "Gunakan seluruh lebar linimasa memo."
+    "full-width-hint": "Gunakan seluruh lebar linimasa memo.",
+    "manual-order": "Manual (drag) order",
+    "manual-order-hint": "Drag memos to arrange them; the order is remembered",
+    "focus-cue": "enter opens · e edits in place",
+    "change-date": "Change date",
+    "view-details": "View details",
+    "inline-save-failed": "Couldn't save the edit yet. It stays in the card and retries.",
+    "inline-edit-placeholder": "Edit in place; it saves as you pause",
+    "change-date-failed": "Couldn't move the memo yet. Try again."
   },
   "message": {
     "archived-successfully": "Berhasil diarsipkan",
@@ -1428,5 +1438,60 @@
     "back": "Mundur {{seconds}} detik",
     "forward": "Maju {{seconds}} detik",
     "speed": "Kecepatan putar {{rate}}x"
+  },
+  "shortcut": {
+    "title": "Pintasan papan tik",
+    "group": {
+      "feed": "Daftar memo",
+      "editor": "Editor",
+      "memo": "Memo"
+    },
+    "feed": {
+      "next": "Pindah ke memo berikutnya",
+      "previous": "Pindah ke memo sebelumnya",
+      "open": "Buka memo yang difokuskan",
+      "search": "Cari memos",
+      "filters": "Buka opsi filter",
+      "clear": "Hapus fokus",
+      "cheatsheet": "Tampilkan lembar referensi"
+    },
+    "editor": {
+      "cycle-task": "Putar status baris: akan dikerjakan, sedang, selesai, biasa",
+      "move-line": "Pindahkan baris atau tugas ke atas/bawah",
+      "save": "Simpan memo"
+    },
+    "memo": {
+      "edit-in-place": "Edit memo di tempatnya",
+      "change-date": "Klik tanggal memo untuk memindahkannya"
+    }
+  },
+  "schedule": {
+    "title": "Schedule memo",
+    "start": "Publish at",
+    "kind": {
+      "once": "Once",
+      "every-days": "Every N days",
+      "weekdays": "On weekdays"
+    },
+    "every-n-days": "Every {count} day(s)",
+    "create": "Create plan",
+    "created": "Scheduled. It will publish at the chosen time.",
+    "create-failed": "Couldn't create the schedule yet. Try again.",
+    "empty-content": "Write the memo first, then schedule it.",
+    "upcoming": "Upcoming",
+    "upcoming-hint": "Plans that will publish memos on their own",
+    "next-run": "Next publish",
+    "recurring": "Recurring",
+    "delete": "Delete plan",
+    "delete-failed": "Couldn't delete the plan yet. Try again."
+  },
+  "weekday": {
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat",
+    "sunday": "Sun"
   }
 }

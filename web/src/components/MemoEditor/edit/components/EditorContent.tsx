@@ -12,7 +12,7 @@ import type { EditorController } from "../types/editorController";
  * Hosts the Markdown Editor behind the EditorController contract. The
  * editor writes into state.content on every change.
  */
-export const EditorContent = forwardRef<EditorController, EditorContentProps>(({ placeholder, sourceMode, onSubmit, onFiles }, ref) => {
+export const EditorContent = forwardRef<EditorController, EditorContentProps>(({ placeholder, sourceMode, onSave, onFiles }, ref) => {
   const isSourceMode = sourceMode.isSourceMode;
   const { actions, dispatch } = useEditorContext();
   const content = useEditorSelector((s) => s.content);
@@ -35,7 +35,7 @@ export const EditorContent = forwardRef<EditorController, EditorContentProps>(({
         attachments={attachments}
         onContentChange={handleContentChange}
         onFiles={onFiles}
-        onSubmit={onSubmit}
+        onSave={onSave}
       />
     </div>
   );

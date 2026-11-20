@@ -411,7 +411,9 @@
       "has-link": "有链接",
       "has-location": "有位置",
       "has-task-list": "有待办",
-      "remove": "移除筛选"
+      "remove": "移除筛选",
+      "any-visibility": "Any audience",
+      "title": "Filter memos"
     },
     "compact-mode": "紧凑模式",
     "connections": "关联",
@@ -485,7 +487,15 @@
     "add-reaction": "添加表态",
     "remove-reaction": "移除表态",
     "full-width": "全宽显示",
-    "full-width-hint": "使用备忘录时间线的全部宽度。"
+    "full-width-hint": "使用备忘录时间线的全部宽度。",
+    "manual-order": "Manual (drag) order",
+    "manual-order-hint": "Drag memos to arrange them; the order is remembered",
+    "focus-cue": "enter opens · e edits in place",
+    "change-date": "Change date",
+    "view-details": "View details",
+    "inline-save-failed": "Couldn't save the edit yet. It stays in the card and retries.",
+    "inline-edit-placeholder": "Edit in place; it saves as you pause",
+    "change-date-failed": "Couldn't move the memo yet. Try again."
   },
   "message": {
     "archived-successfully": "归档成功",
@@ -1428,5 +1438,60 @@
     "back": "后退 {{seconds}} 秒",
     "forward": "前进 {{seconds}} 秒",
     "speed": "播放速度 {{rate}}x"
+  },
+  "shortcut": {
+    "title": "键盘快捷键",
+    "group": {
+      "feed": "备忘列表",
+      "editor": "编辑器",
+      "memo": "备忘"
+    },
+    "feed": {
+      "next": "移到下一条备忘",
+      "previous": "移到上一条备忘",
+      "open": "打开聚焦的备忘",
+      "search": "搜索备忘",
+      "filters": "打开筛选选项",
+      "clear": "清除聚焦",
+      "cheatsheet": "显示此速查表"
+    },
+    "editor": {
+      "cycle-task": "循环切换行状态:待办、进行中、完成、普通",
+      "move-line": "上下移动该行或任务",
+      "save": "保存备忘"
+    },
+    "memo": {
+      "edit-in-place": "直接在原位编辑备忘",
+      "change-date": "点击备忘日期即可移动它"
+    }
+  },
+  "schedule": {
+    "title": "Schedule memo",
+    "start": "Publish at",
+    "kind": {
+      "once": "Once",
+      "every-days": "Every N days",
+      "weekdays": "On weekdays"
+    },
+    "every-n-days": "Every {count} day(s)",
+    "create": "Create plan",
+    "created": "Scheduled. It will publish at the chosen time.",
+    "create-failed": "Couldn't create the schedule yet. Try again.",
+    "empty-content": "Write the memo first, then schedule it.",
+    "upcoming": "Upcoming",
+    "upcoming-hint": "Plans that will publish memos on their own",
+    "next-run": "Next publish",
+    "recurring": "Recurring",
+    "delete": "Delete plan",
+    "delete-failed": "Couldn't delete the plan yet. Try again."
+  },
+  "weekday": {
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat",
+    "sunday": "Sun"
   }
 }

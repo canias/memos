@@ -1,8 +1,16 @@
 services:
   memos:
-    image: neosmemo/memos:stable
-    container_name: memos
+    build:
+      context: ..
+      dockerfile: scripts/Dockerfile
+      args:
+        VERSION: "26.11.18-dev.ce572cc"
+        COMMIT: "ce572cc1466d89ba6163f7b45cda8c6b3a68cc71"
+        TARGETOS: "linux"
+        TARGETARCH: "amd64"
+    image: memos-contributing:local
+    container_name: memos-contributing
     volumes:
-      - ~/.memos/:/var/opt/memos
+      - ~/.memos-contributing/:/var/opt/memos
     ports:
-      - 5230:5230
+      - 5231:5230

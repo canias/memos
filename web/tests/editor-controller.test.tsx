@@ -25,7 +25,7 @@ function setup(value = "", mode: EditorMode = "rich") {
       mode={mode}
       onContentChange={onContentChange}
       onFiles={vi.fn()}
-      onSubmit={vi.fn()}
+      onSave={vi.fn()}
     />,
   );
   return { ...utils, c: ref.current as EditorController, onContentChange };

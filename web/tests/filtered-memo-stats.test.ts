@@ -8,6 +8,7 @@ vi.mock("@/hooks/useUserQueries", () => ({
   useUserStats: vi.fn(),
 }));
 vi.mock("@/hooks/useMemoQueries", () => ({
+  useReorderMemos: () => ({ mutate: () => undefined }),
   useMemos: () => ({ data: undefined, isLoading: false }),
 }));
 vi.mock("@/hooks/useCurrentUser", () => ({

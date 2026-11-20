@@ -100,7 +100,7 @@ func NewService(opts ...Option) Service {
 	exts := []goldmark.Extender{
 		extension.Table,
 		extension.Strikethrough,
-		extension.TaskList,
+		extensions.TaskListExtension,
 		extensions.NewGFMLinkify(),
 	}
 

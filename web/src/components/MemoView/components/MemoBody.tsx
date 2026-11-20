@@ -16,6 +16,7 @@ import { useMemoHandlers } from "../hooks";
 import { useMemoViewContext } from "../MemoViewContext";
 import type { MemoBodyProps } from "../types";
 import { CreatorDisplay } from "./MemoHeader";
+import MemoInlineEditor from "./MemoInlineEditor";
 
 const BlurOverlay: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
   const t = useTranslate();
@@ -37,14 +38,17 @@ const MemoBody: React.FC<MemoBodyProps> = ({ compact, showCreator }) => {
     blurred,
     readonly,
     isEditing,
-    openEditor,
+    isLeanEditing,
+    openLeanEditor,
     closeEditor,
+    closeLeanEditor,
     onEditorFocusModeChange,
     openPreview,
     toggleBlurVisibility,
   } = useMemoViewContext();
 
-  const { handleMemoContentClick, handleMemoContentDoubleClick } = useMemoHandlers({ readonly, openEditor, openPreview });
+  // A double-click turns the rendered memo into its own editor, in place.
+  const { handleMemoContentClick, handleMemoContentDoubleClick } = useMemoHandlers({ readonly, openEditor: openLeanEditor, openPreview });
 
   const referencedMemos = memo.relations.filter(isReferenceRelation);
   const hasText = memo.content.trim() !== "";
@@ -90,15 +94,18 @@ const MemoBody: React.FC<MemoBodyProps> = ({ compact, showCreator }) => {
               Reactions stay outside so they never hide under the fade. */}
           <ClampedSection enabled={Boolean(compact)}>
             {/* A memo of attachments alone has no text: an empty editor would still take a line and a gap. */}
-            {hasText && (
-              <MemoEditor
-                name={memo.name}
-                parentPage={parentPage}
-                compact={Boolean(compact)}
-                onClick={handleMemoContentClick}
-                onDoubleClick={handleMemoContentDoubleClick}
-              />
-            )}
+            {hasText &&
+              (isLeanEditing ? (
+                <MemoInlineEditor memo={memo} onDone={closeLeanEditor} />
+              ) : (
+                <MemoEditor
+                  name={memo.name}
+                  parentPage={parentPage}
+                  compact={Boolean(compact)}
+                  onClick={handleMemoContentClick}
+                  onDoubleClick={handleMemoContentDoubleClick}
+                />
+              ))}
             <AttachmentGallery
               visual={visual}
               onImagePreview={openPreview}

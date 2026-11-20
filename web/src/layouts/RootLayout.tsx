@@ -9,6 +9,7 @@ import AppSidebar, {
   SidebarResizeHandle,
   useSidebarWidth,
 } from "@/components/AppSidebar";
+import ShortcutsDialog from "@/components/ShortcutsDialog";
 import { AppSidebarProvider } from "@/contexts/AppSidebarContext";
 import { GlobalMemoEditorProvider } from "@/contexts/GlobalMemoEditorContext";
 import { useInstance } from "@/contexts/InstanceContext";
@@ -110,6 +111,7 @@ const RootLayoutContent = () => {
         <Outlet />
       </main>
       <QuickFindDialog />
+      <ShortcutsDialog />
     </div>
   );
 };

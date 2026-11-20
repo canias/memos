@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import { MemoryRouter, useLocation } from "react-router-dom";
@@ -13,6 +14,9 @@ const state = vi.hoisted(() => ({
 vi.mock("@/components/RelativeTime", () => ({
   default: () => <>time</>,
 }));
+
+// The owner's timestamp opens the date selector, which updates through the memo queue.
+vi.mock("@/hooks/useMemoQueries", () => ({ useUpdateMemo: () => ({ mutate: vi.fn() }) }));
 
 // The menu owns its trigger's look now (see memo-action-menu.test.tsx); the header only places it.
 vi.mock("@/components/MemoActionMenu", () => ({
@@ -47,7 +51,7 @@ vi.mock("@/i18n", () => ({
 
 vi.mock("@/components/MemoView/MemoViewContext", () => ({
   useMemoViewContext: () => ({
-    memo: { name: "memos/123", visibility: 1, pinned: false, space: "spaces/product" },
+    memo: { name: "memos/123", visibility: 1, pinned: false, space: "spaces/product", creator: "users/alice" },
     creator: state.creator,
     currentUser: state.currentUser,
     parentPage: "/explore?filter=tagSearch%3Awork",
@@ -68,6 +72,10 @@ vi.mock("@/components/MemoView/MemoViewContext", () => ({
 vi.mock("@/utils/i18n", () => ({
   useTranslate: () => (key: string) => key,
 }));
+
+const queryClient = new QueryClient();
+
+const renderHeader = (node: React.ReactElement) => render(<QueryClientProvider client={queryClient}>{node}</QueryClientProvider>);
 
 const LocationProbe = () => {
   const location = useLocation();
@@ -90,7 +98,7 @@ describe("MemoHeader navigation", () => {
     state.creator = { username: "alice", displayName: "Alice", avatarUrl: "" };
     state.isEditing = true;
 
-    const { container } = render(
+    const { container } = renderHeader(
       <MemoryRouter>
         <MemoHeader showCreator showVisibility showSpace />
       </MemoryRouter>,
@@ -104,7 +112,7 @@ describe("MemoHeader navigation", () => {
   it("uses one compact interaction surface for memo header actions", () => {
     state.currentUser = { name: "users/alice" };
 
-    render(
+    renderHeader(
       <MemoryRouter>
         <MemoHeader />
       </MemoryRouter>,
@@ -144,6 +152,25 @@ describe("MemoHeader navigation", () => {
     expect(screen.getByTestId("location")).toHaveTextContent('/memos/123|{"from":"/explore?filter=tagSearch%3Awork"}');
   });
 
+  it("gives the owner a date selector on the timestamp instead of a navigation link", async () => {
+    const owner = { name: "users/alice" };
+    state.currentUser = owner;
+    state.creator = { username: "alice", displayName: "Alice", avatarUrl: "" };
+
+    renderHeader(
+      <MemoryRouter>
+        <MemoHeader showCreator />
+      </MemoryRouter>,
+    );
+
+    // The timestamp is the date control now; the detail page stays one click away inside it.
+    const dateControl = screen.getByRole("button", { name: "memo.change-date" });
+    expect(dateControl).toBeInTheDocument();
+    expect(dateControl).toHaveTextContent("time");
+    fireEvent.click(dateControl);
+    expect(await screen.findByText("memo.view-details")).toBeInTheDocument();
+  });
+
   it("shows the time as plain text on the memo's own page", () => {
     render(
       <MemoryRouter initialEntries={["/memos/123"]}>
@@ -160,7 +187,7 @@ describe("MemoHeader navigation", () => {
       state.creator = { username: "alice", displayName: "Alice", avatarUrl: "" };
     }
 
-    render(
+    renderHeader(
       <MemoryRouter>
         <MemoHeader showCreator={showCreator} showSpace />
       </MemoryRouter>,

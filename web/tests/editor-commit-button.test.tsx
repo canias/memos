@@ -44,7 +44,7 @@ describe("EditorToolbar commit button", () => {
     renderToolbar("A thought");
     const button = screen.getByRole("button", { name: "editor.save" });
 
-    expect(button).toHaveAttribute("aria-keyshortcuts", "Meta+Enter Control+Enter");
+    expect(button).toHaveAttribute("aria-keyshortcuts", "Meta+S Control+S");
     expect(button.querySelector("kbd")).toBeNull();
 
     fireEvent.keyDown(document.body, { key: "Tab" });
@@ -58,7 +58,7 @@ describe("EditorToolbar commit button", () => {
       { timeout: 2000 },
     );
     expect(tooltip).toHaveTextContent("editor.save");
-    expect(tooltip.querySelector(".mu-tooltip-shortcut")).toHaveTextContent("Enter");
+    expect(tooltip.querySelector(".mu-tooltip-shortcut")).toHaveTextContent("S");
   });
 
   it("keeps the same button and label while saving, with the spinner before the label", async () => {

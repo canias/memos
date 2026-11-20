@@ -1,0 +1,134 @@
+syntax = "proto3";
+
+package memos.api;
+
+import "api/memo_service.proto";
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "gen/api";
+
+// ScheduleService manages the publishing plans behind scheduled and recurring
+// memos. A schedule holds a Markdown template and a recurrence; when it fires
+// the server publishes a fresh, ordinary memo from the template.
+service ScheduleService {
+  // CreateSchedule creates a publishing plan owned by the authenticated user.
+  rpc CreateSchedule(CreateScheduleRequest) returns (Schedule) {
+    option (google.api.http) = {
+      post: "/api/{parent=users/*}/schedules"
+      body: "schedule"
+    };
+    option (google.api.method_signature) = "parent,schedule";
+  }
+
+  // GetSchedule gets a publishing plan. Requires the caller to own it.
+  rpc GetSchedule(GetScheduleRequest) returns (Schedule) {
+    option (google.api.http) = {get: "/api/{name=users/*/schedules/*}"};
+    option (google.api.method_signature) = "name";
+  }
+
+  // ListSchedules lists the caller's publishing plans, the soonest next runs
+  // first.
+  rpc ListSchedules(ListSchedulesRequest) returns (ListSchedulesResponse) {
+    option (google.api.http) = {get: "/api/{parent=users/*}/schedules"};
+    option (google.api.method_signature) = "parent";
+  }
+
+  // UpdateSchedule updates a publishing plan's fields, and recomputes the next
+  // run when the recurrence changes.
+  rpc UpdateSchedule(UpdateScheduleRequest) returns (Schedule) {
+    option (google.api.http) = {
+      patch: "/api/{schedule.name=users/*/schedules/*}"
+      body: "schedule"
+    };
+    option (google.api.method_signature) = "schedule,update_mask";
+  }
+
+  // DeleteSchedule removes a publishing plan. Published memos stay.
+  rpc DeleteSchedule(DeleteScheduleRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/api/{name=users/*/schedules/*}"};
+    option (google.api.method_signature) = "name";
+  }
+}
+
+// A publish plan of future memos. start_at is the first fire; a plan with
+// neither every_n_days nor weekday_mask is a one-off that fires once.
+message Schedule {
+  // The resource name: users/{user}/schedules/{schedule}.
+  string name = 1;
+  // Optional. The Markdown template the published memos start from.
+  string content = 2 [(google.api.field_behavior) = OPTIONAL];
+  // Optional. How the published memos appear; defaults to PRIVATE.
+  memos.api.Visibility visibility = 3 [(google.api.field_behavior) = OPTIONAL];
+  // Optional. The Space the published memos land in, when the plan targets one.
+  string space = 4 [(google.api.field_behavior) = OPTIONAL];
+  // Optional. The plan fires every N days; at least one. Never set together
+  // with weekday_mask.
+  optional int32 every_n_days = 5 [(google.api.field_behavior) = OPTIONAL];
+  // Optional. A weekday bitmask: bit 0 = Sunday … bit 6 = Saturday. Never set
+  // together with every_n_days.
+  optional int32 weekday_mask = 6 [(google.api.field_behavior) = OPTIONAL];
+  // Required. The first fire time; for a one-off plan it is the only fire, and
+  // for a recurrence its time of day repeats on every fire.
+  google.protobuf.Timestamp start_at = 7 [(google.api.field_behavior) = REQUIRED];
+  // Required output only. The next time the plan publishes a memo.
+  google.protobuf.Timestamp next_run = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Optional output only. When the plan last published a memo.
+  optional google.protobuf.Timestamp last_fired = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Optional output only. The memo name the plan last published.
+  optional string last_created_memo = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Required output only. The creation time.
+  google.protobuf.Timestamp create_time = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Required output only. The last update time.
+  google.protobuf.Timestamp update_time = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message CreateScheduleRequest {
+  // Required. The parent user: users/{user}.
+  string parent = 1 [(google.api.resource_reference) = {type: "memos.api/User"}];
+  // Required. The schedule to create.
+  Schedule schedule = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetScheduleRequest {
+  // Required. The schedule's name: users/{user}/schedules/{schedule}.
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "memos.api/Schedule"}
+  ];
+}
+
+message ListSchedulesRequest {
+  // Required. The parent user: users/{user}.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "memos.api/User"}
+  ];
+  // Optional. Maximum count to return.
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
+  // Optional. A page token from a previous list call.
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListSchedulesResponse {
+  repeated Schedule schedules = 1;
+  string next_page_token = 2;
+}
+
+message UpdateScheduleRequest {
+  // Required. The schedule with new values.
+  Schedule schedule = 1 [(google.api.field_behavior) = REQUIRED];
+  // Required. The fields to update. Supported paths: content, visibility,
+  // space, start_at, every_n_days, weekday_mask.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message DeleteScheduleRequest {
+  // Required. The schedule's name: users/{user}/schedules/{schedule}.
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+}

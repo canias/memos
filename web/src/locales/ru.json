@@ -381,7 +381,9 @@
       "has-link": "hasLink",
       "has-location": "есть местоположение",
       "has-task-list": "hasTaskList",
-      "remove": "Удалить фильтр"
+      "remove": "Удалить фильтр",
+      "any-visibility": "Any audience",
+      "title": "Filter memos"
     },
     "compact-mode": "Компактный режим",
     "link-preview": "Предпросмотр ссылок",
@@ -456,7 +458,15 @@
     "add-reaction": "Добавить реакцию",
     "remove-reaction": "Удалить реакцию",
     "full-width": "Во всю ширину",
-    "full-width-hint": "Использовать всю ширину хронологии заметок."
+    "full-width-hint": "Использовать всю ширину хронологии заметок.",
+    "manual-order": "Manual (drag) order",
+    "manual-order-hint": "Drag memos to arrange them; the order is remembered",
+    "focus-cue": "enter opens · e edits in place",
+    "change-date": "Change date",
+    "view-details": "View details",
+    "inline-save-failed": "Couldn't save the edit yet. It stays in the card and retries.",
+    "inline-edit-placeholder": "Edit in place; it saves as you pause",
+    "change-date-failed": "Couldn't move the memo yet. Try again."
   },
   "message": {
     "archived-successfully": "Перемещено в архив",
@@ -1430,5 +1440,60 @@
     "back": "Назад на {{seconds}} секунд",
     "forward": "Вперёд на {{seconds}} секунд",
     "speed": "Скорость воспроизведения {{rate}}x"
+  },
+  "shortcut": {
+    "title": "Горячие клавиши",
+    "group": {
+      "feed": "Список заметок",
+      "editor": "Редактор",
+      "memo": "Заметки"
+    },
+    "feed": {
+      "next": "К следующей заметке",
+      "previous": "К предыдущей заметке",
+      "open": "Открыть выбранную заметку",
+      "search": "Поиск заметок",
+      "filters": "Открыть параметры фильтра",
+      "clear": "Снять выделение",
+      "cheatsheet": "Показать эту шпаргалку"
+    },
+    "editor": {
+      "cycle-task": "Переключить строку: к выполнению, в работе, готово, обычная",
+      "move-line": "Переместить строку или задачу вверх/вниз",
+      "save": "Сохранить заметку"
+    },
+    "memo": {
+      "edit-in-place": "Редактировать заметку на месте",
+      "change-date": "Щёлкните дату заметки, чтобы переместить её"
+    }
+  },
+  "schedule": {
+    "title": "Schedule memo",
+    "start": "Publish at",
+    "kind": {
+      "once": "Once",
+      "every-days": "Every N days",
+      "weekdays": "On weekdays"
+    },
+    "every-n-days": "Every {count} day(s)",
+    "create": "Create plan",
+    "created": "Scheduled. It will publish at the chosen time.",
+    "create-failed": "Couldn't create the schedule yet. Try again.",
+    "empty-content": "Write the memo first, then schedule it.",
+    "upcoming": "Upcoming",
+    "upcoming-hint": "Plans that will publish memos on their own",
+    "next-run": "Next publish",
+    "recurring": "Recurring",
+    "delete": "Delete plan",
+    "delete-failed": "Couldn't delete the plan yet. Try again."
+  },
+  "weekday": {
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat",
+    "sunday": "Sun"
   }
 }

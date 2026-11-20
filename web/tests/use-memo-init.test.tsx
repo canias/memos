@@ -126,15 +126,28 @@ describe("the initial draft and useMemoInit", () => {
     expect(getEditorState().metadata.attachments).toEqual([attachment]);
   });
 
-  it("starts an edit from the memo and drops any draft under its key", () => {
-    cacheService.saveNow(draftKey, { content: "stale draft", attachments: [] });
+  it("starts an edit from the memo and restores an unfinished draft under its key", () => {
+    cacheService.saveNow(draftKey, { content: "unfinished edit", attachments: [] });
+    const memo = create(MemoSchema, { name: "memos/one", content: "The memo", visibility: Visibility.PUBLIC, space: "spaces/work" });
+
+    // The interrupted edit comes back over the memo; the memo's own fields carry.
+    const state = initialEditorState({ memo, draftKey, initialFocusMode: true });
+
+    expect(state.content).toBe("unfinished edit");
+    expect(state.metadata.visibility).toBe(Visibility.PUBLIC);
+    expect(state.metadata.space).toBe("spaces/work");
+    expect(state.ui.isFocusMode).toBe(true);
+    expect(cacheService.loadDraft(draftKey).content).toBe("unfinished edit");
+  });
+
+  it("drops an edit draft that only repeats the memo", () => {
+    cacheService.saveNow(draftKey, { content: "The memo", attachments: [] });
     const memo = create(MemoSchema, { name: "memos/one", content: "The memo", visibility: Visibility.PUBLIC, space: "spaces/work" });
 
     const state = initialEditorState({ memo, draftKey, initialFocusMode: true });
 
     expect(state.content).toBe("The memo");
-    expect(state.metadata.space).toBe("spaces/work");
-    expect(state.ui.isFocusMode).toBe(true);
     expect(cacheService.loadDraft(draftKey).content).toBe("");
+    expect(state.metadata.space).toBe("spaces/work");
   });
 });

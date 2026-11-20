@@ -380,7 +380,9 @@
       "has-link": "aLien",
       "has-location": "a une localisation",
       "has-task-list": "aListeTâches",
-      "remove": "Retirer le filtre"
+      "remove": "Retirer le filtre",
+      "any-visibility": "Any audience",
+      "title": "Filter memos"
     },
     "compact-mode": "Mode compact",
     "link-preview": "Aperçu des liens",
@@ -455,7 +457,15 @@
     "add-reaction": "Ajouter une réaction",
     "remove-reaction": "Supprimer la réaction",
     "full-width": "Pleine largeur",
-    "full-width-hint": "Utiliser toute la largeur de la chronologie des mémos."
+    "full-width-hint": "Utiliser toute la largeur de la chronologie des mémos.",
+    "manual-order": "Manual (drag) order",
+    "manual-order-hint": "Drag memos to arrange them; the order is remembered",
+    "focus-cue": "enter opens · e edits in place",
+    "change-date": "Change date",
+    "view-details": "View details",
+    "inline-save-failed": "Couldn't save the edit yet. It stays in the card and retries.",
+    "inline-edit-placeholder": "Edit in place; it saves as you pause",
+    "change-date-failed": "Couldn't move the memo yet. Try again."
   },
   "message": {
     "archived-successfully": "Archivé avec succès",
@@ -1429,5 +1439,60 @@
     "back": "Reculer de {{seconds}} secondes",
     "forward": "Avancer de {{seconds}} secondes",
     "speed": "Vitesse de lecture {{rate}}x"
+  },
+  "shortcut": {
+    "title": "Raccourcis clavier",
+    "group": {
+      "feed": "Liste de mémos",
+      "editor": "Éditeur",
+      "memo": "Mémos"
+    },
+    "feed": {
+      "next": "Mémo suivant",
+      "previous": "Mémo précédent",
+      "open": "Ouvrir le mémo ciblé",
+      "search": "Rechercher des mémos",
+      "filters": "Ouvrir les options de filtre",
+      "clear": "Effacer le focus",
+      "cheatsheet": "Afficher cette aide"
+    },
+    "editor": {
+      "cycle-task": "Cycler une ligne : à faire, en cours, fait, simple",
+      "move-line": "Déplacer la ligne ou la tâche haut/bas",
+      "save": "Enregistrer le mémo"
+    },
+    "memo": {
+      "edit-in-place": "Modifier un mémo sur place",
+      "change-date": "Cliquez la date d'un mémo pour le déplacer"
+    }
+  },
+  "schedule": {
+    "title": "Schedule memo",
+    "start": "Publish at",
+    "kind": {
+      "once": "Once",
+      "every-days": "Every N days",
+      "weekdays": "On weekdays"
+    },
+    "every-n-days": "Every {count} day(s)",
+    "create": "Create plan",
+    "created": "Scheduled. It will publish at the chosen time.",
+    "create-failed": "Couldn't create the schedule yet. Try again.",
+    "empty-content": "Write the memo first, then schedule it.",
+    "upcoming": "Upcoming",
+    "upcoming-hint": "Plans that will publish memos on their own",
+    "next-run": "Next publish",
+    "recurring": "Recurring",
+    "delete": "Delete plan",
+    "delete-failed": "Couldn't delete the plan yet. Try again."
+  },
+  "weekday": {
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat",
+    "sunday": "Sun"
   }
 }

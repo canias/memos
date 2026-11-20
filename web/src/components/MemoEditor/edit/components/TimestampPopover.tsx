@@ -22,6 +22,8 @@ function parseDate(value: string): Date | undefined {
   return formatDate(date) === value ? date : undefined;
 }
 
+export { TimestampInput };
+
 const TimestampInput: FC<{
   label: string;
   date: Date | undefined;

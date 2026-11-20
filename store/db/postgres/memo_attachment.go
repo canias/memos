@@ -223,6 +223,9 @@ func applyMemoUpdate(ctx context.Context, executor memoUpdateExecer, update *sto
 		}
 		appendValue("payload", string(payload))
 	}
+	if v := update.OrderValue; v != nil {
+		appendValue("order_no", *v)
+	}
 	if update.ClearSpace {
 		set = append(set, "space_id = NULL")
 	} else if v := update.SpaceID; v != nil {

@@ -13,7 +13,7 @@ afterEach(() => {
 function setup(content = "") {
   const root = document.createElement("div");
   document.body.append(root);
-  const extensions = buildEditorExtensions({ getTags: () => [], onFiles: vi.fn(), emojiLabel: "Emoji" });
+  const extensions = buildEditorExtensions({ getTags: () => [], onFiles: vi.fn(), emojiLabel: "Emoji", onSave: vi.fn() });
   const editor = new Editor({ element: root, content, resolveUrl: memoResolveUrl(), extensions });
   editors.push(editor);
   editor.focus();
