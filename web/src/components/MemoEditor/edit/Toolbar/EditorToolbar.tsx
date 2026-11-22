@@ -121,12 +121,7 @@ export const EditorToolbar: FC<EditorToolbarProps> = ({
       </div>
 
       <div className="flex shrink-0 flex-row items-center justify-end gap-1">
-        {onSchedule && (
-          <ScheduleDraftMenu
-            disabled={isSaving || !valid}
-            onConfirm={(draft) => onSchedule({ ...draft, visibility, ...(space ? { space } : {}) })}
-          />
-        )}
+        {onSchedule && <ScheduleDraftMenu disabled={isSaving || !valid} onConfirm={(draft) => onSchedule(draft)} />}
         {onCancel && (
           <Button variant="ghost" onClick={onCancel} disabled={isSaving}>
             {t("common.cancel")}

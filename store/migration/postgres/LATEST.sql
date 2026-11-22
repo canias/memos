@@ -157,22 +157,3 @@ CREATE TABLE user_identity (
 
 CREATE INDEX idx_user_identity_user_id ON user_identity(user_id);
 
--- schedule: the recurring and one-off future memos the instance publishes
-CREATE TABLE schedule (
-  id SERIAL PRIMARY KEY,
-  created_ts BIGINT NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()),
-  updated_ts BIGINT NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()),
-  creator_id INTEGER NOT NULL,
-  space_id INTEGER DEFAULT NULL,
-  row_status TEXT NOT NULL DEFAULT 'NORMAL',
-  content TEXT NOT NULL DEFAULT '',
-  visibility TEXT NOT NULL DEFAULT 'PRIVATE',
-  every_n_days INTEGER DEFAULT NULL,
-  weekday_mask INTEGER DEFAULT NULL,
-  start_ts BIGINT NOT NULL,
-  next_run_ts BIGINT NOT NULL,
-  last_fired_ts BIGINT DEFAULT NULL,
-  last_created_memo_uid TEXT DEFAULT NULL
-);
-CREATE INDEX idx_schedule_creator ON schedule (creator_id);
-CREATE INDEX idx_schedule_next_run ON schedule (next_run_ts);

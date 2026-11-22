@@ -18,38 +18,6 @@ export const setMemoEditing = (name: string, editing: boolean): void => {
 export const memoNamesEditing = (): ReadonlySet<string> => editingNames;
 
 /**
- * Requests for a card to start its lean in-place edit, made from outside the card (the
- * feed's `e` hotkey). The card consumes its request when it sees it.
- */
-const leanEditRequests = new Set<string>();
-const leanEditListeners = new Set<() => void>();
-
-const emitLeanEditRequests = () => {
-  for (const listener of leanEditListeners) listener();
-};
-
-/** Asks the card to turn its body into its editor. */
-export const requestLeanEdit = (name: string): void => {
-  leanEditRequests.add(name);
-  emitLeanEditRequests();
-};
-
-/** Takes the card's pending request, if any; the card then opens its editor. */
-export const consumeLeanEditRequest = (name: string): boolean => {
-  const requested = leanEditRequests.delete(name);
-  if (requested) emitLeanEditRequests();
-  return requested;
-};
-
-/** Subscribes to request changes; the snapshot is whether the named card has one. */
-export const subscribeLeanEditRequests = (listener: () => void): (() => void) => {
-  leanEditListeners.add(listener);
-  return () => leanEditListeners.delete(listener);
-};
-
-export const hasLeanEditRequest = (name: string): boolean => leanEditRequests.has(name);
-
-/**
  * Reorders `next` so every memo under edit keeps the position it had in `previous`:
  * the card under the caret must not move while its content saves, and others slide
  * around it. Memos that left the list (archived, filtered out) step aside.

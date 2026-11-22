@@ -22,10 +22,12 @@ const (
 )
 
 type MemoPayload struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Property      *MemoPayload_Property  `protobuf:"bytes,1,opt,name=property,proto3" json:"property,omitempty"`
-	Location      *MemoPayload_Location  `protobuf:"bytes,2,opt,name=location,proto3" json:"location,omitempty"`
-	Tags          []string               `protobuf:"bytes,3,rep,name=tags,proto3" json:"tags,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Property *MemoPayload_Property  `protobuf:"bytes,1,opt,name=property,proto3" json:"property,omitempty"`
+	Location *MemoPayload_Location  `protobuf:"bytes,2,opt,name=location,proto3" json:"location,omitempty"`
+	Tags     []string               `protobuf:"bytes,3,rep,name=tags,proto3" json:"tags,omitempty"`
+	// The recurrence of a memo. Absent for ordinary memos.
+	Recurrence    *MemoPayload_Recurrence `protobuf:"bytes,4,opt,name=recurrence,proto3" json:"recurrence,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -81,6 +83,77 @@ func (x *MemoPayload) GetTags() []string {
 	return nil
 }
 
+func (x *MemoPayload) GetRecurrence() *MemoPayload_Recurrence {
+	if x != nil {
+		return x.Recurrence
+	}
+	return nil
+}
+
+// A memo's recurrence: the rule and the next date it comes due.
+type MemoPayload_Recurrence struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Every N days; never set together with weekday_mask.
+	EveryNDays *int32 `protobuf:"varint,1,opt,name=every_n_days,json=everyNDays,proto3,oneof" json:"every_n_days,omitempty"`
+	// Weekday bitmask, bit 0 = Sunday … bit 6 = Saturday; never set with every_n_days.
+	WeekdayMask *int32 `protobuf:"varint,2,opt,name=weekday_mask,json=weekdayMask,proto3,oneof" json:"weekday_mask,omitempty"`
+	// Unix seconds of the next occurrence; mirrors the memo's create time.
+	NextRunTs     int64 `protobuf:"varint,3,opt,name=next_run_ts,json=nextRunTs,proto3" json:"next_run_ts,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MemoPayload_Recurrence) Reset() {
+	*x = MemoPayload_Recurrence{}
+	mi := &file_store_memo_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MemoPayload_Recurrence) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MemoPayload_Recurrence) ProtoMessage() {}
+
+func (x *MemoPayload_Recurrence) ProtoReflect() protoreflect.Message {
+	mi := &file_store_memo_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MemoPayload_Recurrence.ProtoReflect.Descriptor instead.
+func (*MemoPayload_Recurrence) Descriptor() ([]byte, []int) {
+	return file_store_memo_proto_rawDescGZIP(), []int{0, 0}
+}
+
+func (x *MemoPayload_Recurrence) GetEveryNDays() int32 {
+	if x != nil && x.EveryNDays != nil {
+		return *x.EveryNDays
+	}
+	return 0
+}
+
+func (x *MemoPayload_Recurrence) GetWeekdayMask() int32 {
+	if x != nil && x.WeekdayMask != nil {
+		return *x.WeekdayMask
+	}
+	return 0
+}
+
+func (x *MemoPayload_Recurrence) GetNextRunTs() int64 {
+	if x != nil {
+		return x.NextRunTs
+	}
+	return 0
+}
+
 // The calculated properties from the memo content.
 type MemoPayload_Property struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
@@ -98,7 +171,7 @@ type MemoPayload_Property struct {
 
 func (x *MemoPayload_Property) Reset() {
 	*x = MemoPayload_Property{}
-	mi := &file_store_memo_proto_msgTypes[1]
+	mi := &file_store_memo_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -110,7 +183,7 @@ func (x *MemoPayload_Property) String() string {
 func (*MemoPayload_Property) ProtoMessage() {}
 
 func (x *MemoPayload_Property) ProtoReflect() protoreflect.Message {
-	mi := &file_store_memo_proto_msgTypes[1]
+	mi := &file_store_memo_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -123,7 +196,7 @@ func (x *MemoPayload_Property) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MemoPayload_Property.ProtoReflect.Descriptor instead.
 func (*MemoPayload_Property) Descriptor() ([]byte, []int) {
-	return file_store_memo_proto_rawDescGZIP(), []int{0, 0}
+	return file_store_memo_proto_rawDescGZIP(), []int{0, 1}
 }
 
 func (x *MemoPayload_Property) GetHasLink() bool {
@@ -179,7 +252,7 @@ type MemoPayload_Location struct {
 
 func (x *MemoPayload_Location) Reset() {
 	*x = MemoPayload_Location{}
-	mi := &file_store_memo_proto_msgTypes[2]
+	mi := &file_store_memo_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -191,7 +264,7 @@ func (x *MemoPayload_Location) String() string {
 func (*MemoPayload_Location) ProtoMessage() {}
 
 func (x *MemoPayload_Location) ProtoReflect() protoreflect.Message {
-	mi := &file_store_memo_proto_msgTypes[2]
+	mi := &file_store_memo_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -204,7 +277,7 @@ func (x *MemoPayload_Location) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MemoPayload_Location.ProtoReflect.Descriptor instead.
 func (*MemoPayload_Location) Descriptor() ([]byte, []int) {
-	return file_store_memo_proto_rawDescGZIP(), []int{0, 1}
+	return file_store_memo_proto_rawDescGZIP(), []int{0, 2}
 }
 
 func (x *MemoPayload_Location) GetPlaceholder() string {
@@ -232,11 +305,22 @@ var File_store_memo_proto protoreflect.FileDescriptor
 
 const file_store_memo_proto_rawDesc = "" +
 	"\n" +
-	"\x10store/memo.proto\x12\vmemos.store\"\xe0\x03\n" +
+	"\x10store/memo.proto\x12\vmemos.store\"\xc5\x05\n" +
 	"\vMemoPayload\x12=\n" +
 	"\bproperty\x18\x01 \x01(\v2!.memos.store.MemoPayload.PropertyR\bproperty\x12=\n" +
 	"\blocation\x18\x02 \x01(\v2!.memos.store.MemoPayload.LocationR\blocation\x12\x12\n" +
-	"\x04tags\x18\x03 \x03(\tR\x04tags\x1a\xd6\x01\n" +
+	"\x04tags\x18\x03 \x03(\tR\x04tags\x12C\n" +
+	"\n" +
+	"recurrence\x18\x04 \x01(\v2#.memos.store.MemoPayload.RecurrenceR\n" +
+	"recurrence\x1a\x9d\x01\n" +
+	"\n" +
+	"Recurrence\x12%\n" +
+	"\fevery_n_days\x18\x01 \x01(\x05H\x00R\n" +
+	"everyNDays\x88\x01\x01\x12&\n" +
+	"\fweekday_mask\x18\x02 \x01(\x05H\x01R\vweekdayMask\x88\x01\x01\x12\x1e\n" +
+	"\vnext_run_ts\x18\x03 \x01(\x03R\tnextRunTsB\x0f\n" +
+	"\r_every_n_daysB\x0f\n" +
+	"\r_weekday_mask\x1a\xd6\x01\n" +
 	"\bProperty\x12\x19\n" +
 	"\bhas_link\x18\x01 \x01(\bR\ahasLink\x12\"\n" +
 	"\rhas_task_list\x18\x02 \x01(\bR\vhasTaskList\x12\x19\n" +
@@ -262,20 +346,22 @@ func file_store_memo_proto_rawDescGZIP() []byte {
 	return file_store_memo_proto_rawDescData
 }
 
-var file_store_memo_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_store_memo_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_store_memo_proto_goTypes = []any{
-	(*MemoPayload)(nil),          // 0: memos.store.MemoPayload
-	(*MemoPayload_Property)(nil), // 1: memos.store.MemoPayload.Property
-	(*MemoPayload_Location)(nil), // 2: memos.store.MemoPayload.Location
+	(*MemoPayload)(nil),            // 0: memos.store.MemoPayload
+	(*MemoPayload_Recurrence)(nil), // 1: memos.store.MemoPayload.Recurrence
+	(*MemoPayload_Property)(nil),   // 2: memos.store.MemoPayload.Property
+	(*MemoPayload_Location)(nil),   // 3: memos.store.MemoPayload.Location
 }
 var file_store_memo_proto_depIdxs = []int32{
-	1, // 0: memos.store.MemoPayload.property:type_name -> memos.store.MemoPayload.Property
-	2, // 1: memos.store.MemoPayload.location:type_name -> memos.store.MemoPayload.Location
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	2, // 0: memos.store.MemoPayload.property:type_name -> memos.store.MemoPayload.Property
+	3, // 1: memos.store.MemoPayload.location:type_name -> memos.store.MemoPayload.Location
+	1, // 2: memos.store.MemoPayload.recurrence:type_name -> memos.store.MemoPayload.Recurrence
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_store_memo_proto_init() }
@@ -283,13 +369,14 @@ func file_store_memo_proto_init() {
 	if File_store_memo_proto != nil {
 		return
 	}
+	file_store_memo_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_store_memo_proto_rawDesc), len(file_store_memo_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

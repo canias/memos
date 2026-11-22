@@ -175,36 +175,6 @@ func (s *Server) startBackgroundJobs() {
 			slog.Error("failed to rebuild memo payloads; retrying on next start", slog.String("error", err.Error()))
 		}
 	})
-	s.startScheduleSweeper(ctx)
-}
-
-// startScheduleSweeper publishes scheduled and recurring memos: every minute it
-// fires each due plan, cloning a fresh memo from its template. At least once is
-// the contract — a crash between publishing and advancing replays the plan once,
-// and a failed sweep waits for the next tick.
-func (s *Server) startScheduleSweeper(ctx context.Context) {
-	s.backgroundJobs.Go(func() {
-		api := s.apiService
-		sweep := func() {
-			for _, err := range api.RunScheduleSweep(ctx) {
-				slog.Error("schedule sweep continued after an error", slog.String("error", err.Error()))
-			}
-			api.PublishMemoChanged()
-		}
-		// Catch up on what fired while the instance was down before settling
-		// into the minute tick.
-		sweep()
-		ticker := time.NewTicker(time.Minute)
-		defer ticker.Stop()
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-				sweep()
-			}
-		}
-	})
 }
 
 func (s *Server) stopBackgroundJobs() {

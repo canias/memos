@@ -1,7 +1,6 @@
-import { Button, Popover, Select } from "@usememos/ui";
+import { Button, Field, Input, Popover, Select } from "@usememos/ui";
 import { CalendarClockIcon } from "lucide-react";
 import { type FC, useState } from "react";
-import { TimestampInput } from "@/components/MemoEditor/edit/components/TimestampPopover";
 import { cn } from "@/lib/utils";
 import { type Translations, useTranslate } from "@/utils/i18n";
 import type { ScheduleDraft } from "../types";
@@ -31,6 +30,12 @@ const recurrenceOptions = (t: (key: Translations) => string): { value: Recurrenc
 /** The first fire defaults an hour out. */
 const defaultStartAt = () => new Date(Date.now() + 60 * 60 * 1000);
 
+const pad = (n: number) => String(n).padStart(2, "0");
+/** The local calendar day as `YYYY-MM-DD`, the value a date input shows. */
+const toLocalDateValue = (date: Date): string => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+/** The local time as `HH:mm`, the value a time input shows. */
+const toLocalTimeValue = (date: Date): string => `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+
 /** A visible day count with − / + steppers; the count is editable and never drops below one. */
 const EveryNDaysField: FC<{ value: number; onChange: (value: number) => void }> = ({ value, onChange }) => {
   const t = useTranslate();
@@ -58,9 +63,9 @@ const EveryNDaysField: FC<{ value: number; onChange: (value: number) => void }> 
 };
 
 /**
- * Menu behind the toolbar's schedule affordance: the draft's first fire and, for a
- * recurrence, every N days or the weekdays it should publish on. Confirming hands the
- * draft to the host, which moves it into a publishing plan.
+ * Popover behind the toolbar's schedule affordance: the memo's date and, for a
+ * recurrence, every N days or the weekdays it repeats on. Confirming stages the
+ * values on the memo and closes the popover; the editor stays open until Save.
  */
 export const ScheduleDraftMenu: FC<{ disabled: boolean; onConfirm: (draft: ScheduleDraft) => void }> = ({ disabled, onConfirm }) => {
   const t = useTranslate();
@@ -84,7 +89,34 @@ export const ScheduleDraftMenu: FC<{ disabled: boolean; onConfirm: (draft: Sched
       />
       <Popover.Popup align="end" className="w-72">
         <div className="flex flex-col gap-3">
-          <TimestampInput label={t("schedule.start")} date={startAt} onChange={setStartAt} />
+          <Field.Root size="md">
+            <Field.Label>{t("schedule.start")}</Field.Label>
+            <div className="grid grid-cols-[1fr_7rem] items-end gap-2">
+              <Input
+                type="date"
+                aria-label={t("schedule.start")}
+                value={toLocalDateValue(startAt)}
+                onChange={(event) => {
+                  const next = new Date(`${event.target.value}T${toLocalTimeValue(startAt)}`);
+                  if (!Number.isNaN(next.getTime())) setStartAt(next);
+                }}
+                className="w-full"
+              />
+              <div className="flex flex-col gap-1">
+                <span className="mu-caption text-mu-text-secondary">{t("schedule.time")}</span>
+                <Input
+                  type="time"
+                  aria-label={t("schedule.time")}
+                  value={toLocalTimeValue(startAt)}
+                  onChange={(event) => {
+                    const next = new Date(`${toLocalDateValue(startAt)}T${event.target.value}`);
+                    if (!Number.isNaN(next.getTime())) setStartAt(next);
+                  }}
+                  className="w-full"
+                />
+              </div>
+            </div>
+          </Field.Root>
           <Select.Root
             items={recurrenceOptions(t)}
             value={recurrence.kind}
@@ -136,7 +168,7 @@ export const ScheduleDraftMenu: FC<{ disabled: boolean; onConfirm: (draft: Sched
             disabled={recurrence.kind === "weekdays" && recurrence.weekdayMask === 0}
             onClick={confirm}
           >
-            {t("schedule.create")}
+            {t("schedule.set-date")}
           </Button>
         </div>
       </Popover.Popup>

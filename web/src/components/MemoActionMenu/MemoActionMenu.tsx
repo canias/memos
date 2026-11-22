@@ -1,5 +1,5 @@
 import { Menu as MenuPrimitive } from "@base-ui/react/menu";
-import { Button, Menu, menuClasses, Tooltip } from "@usememos/ui";
+import { Button, Menu, menuClasses } from "@usememos/ui";
 import {
   ArchiveIcon,
   ArchiveRestoreIcon,
@@ -164,12 +164,12 @@ const MemoActionMenu = (props: MemoActionMenuProps) => {
 
   return (
     <Menu.Root modal={false}>
-      <Tooltip.Root>
-        <Tooltip.Trigger
-          render={<Menu.Trigger render={<Button variant="ghost" size="sm" aria-label={t("common.more")} icon={<MoreVerticalIcon />} />} />}
-        />
-        <Tooltip.Popup>{t("common.more")}</Tooltip.Popup>
-      </Tooltip.Root>
+      {/* The menu opens when the pointer rests on the button; a click or the keyboard still opens it too. */}
+      <Menu.Trigger
+        openOnHover
+        delay={100}
+        render={<Button variant="ghost" size="sm" aria-label={t("common.more")} icon={<MoreVerticalIcon />} />}
+      />
       <Menu.Popup align="end">{renderItems()}</Menu.Popup>
 
       {/* Delete confirmation dialog */}

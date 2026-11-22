@@ -60,11 +60,28 @@
 }
 
 @layer components {
-  /* The doing task marker (`- [/]`) in memo bodies: amber in every theme, like the
-     search wash, so an in-progress item reads at a glance in the editor and the view. */
+  /* The doing task marker (`- [/]`) stays literal text while editing, so the source reads as typed. */
   .mbe-doing-task {
     color: var(--mu-warning);
     font-weight: 600;
+  }
+
+  /* In the read-only preview only, the marker becomes a checkbox-shaped amber box. The box
+     is drawn from the literal text, which is hidden, so the Markdown itself is unchanged. */
+  .mbe-readonly .mbe-doing-task {
+    display: inline-block;
+    box-sizing: border-box;
+    width: 16px;
+    height: 16px;
+    margin: 4px 0 0;
+    vertical-align: top;
+    border: 1px solid var(--mu-warning);
+    border-radius: 4px;
+    background-color: var(--mu-warning);
+    color: transparent;
+    font-size: 0;
+    line-height: 0;
+    overflow: hidden;
   }
 
   /* Mermaid diagrams drawn by Pele take the theme's colors; a new scheme recolors them live. */

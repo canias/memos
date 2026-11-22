@@ -31,7 +31,7 @@ Memo content uses 16px text on 24px lines with 12px between blocks; the editor k
 
 Code blocks use lazy-loaded `@pierre/highlights` tokens as editor decorations, without an HTML conversion. GitHub Light and GitHub Dark Dimmed colors follow the document's color scheme; ordinary text and structural punctuation keep the editor's text color. Unsupported languages, unavailable WebAssembly, or browsers without `light-dark()` colors leave the code as plain text. Highlighting never changes the saved Markdown.
 
-Editing keys (`edit/hotkeys.ts`, bound before the editor's defaults): `Ctrl/⌘+S` and `⌘+Enter` save (the toolbar's tooltip shows the chord), `Ctrl+Enter` cycles the caret line's task state (todo → doing `[/]` → done → plain; a non-task list line becomes a todo), and `Alt+↑/↓` moves the line or list item with its nested subtree. The `[/]` doing marker is part of the memo Markdown engine (`markdown/`), renders amber in memo bodies, and counts as an incomplete task.
+Editing keys (`edit/hotkeys.ts`, bound before the editor's defaults): `Ctrl/⌘+S` and `⌘+Enter` save (the toolbar's tooltip shows the chord), `Ctrl+Y` cycles the caret line's task state forward (plain → todo → doing `[/]` → done → plain; a non-task list line becomes a todo), `Ctrl+Shift+Y` or `Ctrl+ArrowLeft` cycles it backward, and `Ctrl+ArrowRight` forward, and `Alt+↑/↓` moves the line or list item with its nested subtree. The `[/]` doing marker is part of the memo Markdown engine (`markdown/`), renders amber in memo bodies, and counts as an incomplete task.
 
 ## Data
 

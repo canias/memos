@@ -29,6 +29,7 @@ const memoQuery = vi.hoisted(() => ({ request: undefined as Record<string, unkno
 
 vi.mock("@/hooks/useMemoQueries", () => ({
   useReorderMemos: () => ({ mutate: () => undefined }),
+  useDeleteMemos: () => ({ mutateAsync: async () => ({ deleted: [], failed: [] }) }),
   useInfiniteMemos: (request: Record<string, unknown>) => {
     memoQuery.request = request;
     return {

@@ -527,6 +527,36 @@ export function useDeleteMemo() {
   });
 }
 
+/**
+ * Deletes several memos at once (the feed's selection). Every delete is attempted; the result lists the
+ * names that went and the ones that failed, so a partial failure keeps what's left selected.
+ */
+export function useDeleteMemos() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (names: string[]) => {
+      const deleted: string[] = [];
+      const failed: string[] = [];
+      for (const name of names) {
+        try {
+          await memoServiceClient.deleteMemo({ name });
+          deleted.push(name);
+        } catch {
+          failed.push(name);
+        }
+      }
+      return { deleted, failed };
+    },
+    onSettled: (result) => {
+      for (const name of result?.deleted ?? []) queryClient.removeQueries({ queryKey: memoKeys.detail(name) });
+      queryClient.invalidateQueries({ queryKey: memoKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: userKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: attachmentKeys.lists() });
+    },
+  });
+}
+
 export function useMemoComments(name: string, options?: { enabled?: boolean; pageSize?: number }) {
   return useQuery({
     queryKey: [...memoKeys.comments(name), options?.pageSize ?? 0],

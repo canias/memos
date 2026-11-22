@@ -8,6 +8,8 @@ import type { Memo } from "@/types/proto/api/memo_service_pb";
 export interface UseMemoSortingOptions {
   pinnedFirst?: boolean;
   state?: State;
+  /** The feed is drag-sortable, so its dropped positions always apply. */
+  alwaysManualOrder?: boolean;
 }
 
 export interface UseMemoSortingResult {
@@ -40,10 +42,12 @@ export const hoistMemoToFront = (memos: Memo[], name: string | null): Memo[] => 
  * chronological order no matter what every author's drag order was.
  */
 export const useMemoSorting = (options: UseMemoSortingOptions = {}): UseMemoSortingResult => {
-  const { pinnedFirst = false, state = State.NORMAL } = options;
+  const { pinnedFirst = false, state = State.NORMAL, alwaysManualOrder = false } = options;
   const { orderByTimeAsc, timeBasis, manualOrder: viewManualOrder } = useView();
   // The feed's own scope decides: an owner's feed honors the saved preference.
-  const manualOrder = Boolean(pinnedFirst && viewManualOrder);
+  // The manual order applies when the view asks for it, or when the feed is drag-sortable
+  // (the owner's timeline), where a dropped position must hold.
+  const manualOrder = Boolean(pinnedFirst && (viewManualOrder || alwaysManualOrder));
 
   // Generate orderBy string for API. The manual order sort puts memos that carry a
   // dragged position first, in that order; the rest follow their time order.

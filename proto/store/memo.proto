@@ -11,6 +11,19 @@ message MemoPayload {
 
   repeated string tags = 3;
 
+  // The recurrence of a memo. Absent for ordinary memos.
+  Recurrence recurrence = 4;
+
+  // A memo's recurrence: the rule and the next date it comes due.
+  message Recurrence {
+    // Every N days; never set together with weekday_mask.
+    optional int32 every_n_days = 1;
+    // Weekday bitmask, bit 0 = Sunday … bit 6 = Saturday; never set with every_n_days.
+    optional int32 weekday_mask = 2;
+    // Unix seconds of the next occurrence; mirrors the memo's create time.
+    int64 next_run_ts = 3;
+  }
+
   // The calculated properties from the memo content.
   message Property {
     bool has_link = 1;

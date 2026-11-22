@@ -21,6 +21,7 @@ import { createMemoNavigationState, isMemoDetailPath } from "../navigation";
 import type { MemoHeaderProps } from "../types";
 import MemoSpaceBadge from "./MemoSpaceBadge";
 import MemoTimeEditorPopover from "./MemoTimeEditorPopover";
+import { recurrenceLabel } from "./memoRecurrenceLabel";
 
 /** The card's trailing actions are the package's 24px ghost squares (`sm`), whether or not they are package buttons. */
 const MEMO_HEADER_ACTION_CLASSES = buttonClasses({ variant: "ghost", size: "sm", iconOnly: true });
@@ -55,6 +56,8 @@ const MemoHeader: React.FC<MemoHeaderProps> = ({ timeDisplay = "relative", showC
         ? `${t("common.last-updated-at")}: ${updateTime.toLocaleString(i18n.language)}`
         : undefined,
   };
+  // A recurring memo shows its rule beside its date; the next date sits in its tooltip.
+  const recurrenceText = memo.recurrence ? recurrenceLabel(memo.recurrence, t) : "";
   const spaceMetadata = showSpace && memo.space ? <MemoSpaceBadge spaceName={memo.space} /> : null;
   const showsCreator = Boolean(showCreator && creator);
   const isNew = memo.name === newMemoName;
@@ -87,6 +90,11 @@ const MemoHeader: React.FC<MemoHeaderProps> = ({ timeDisplay = "relative", showC
               parentPage={parentPage}
               isCurrentPage={isMemoDetailPath(location.pathname, memo.name)}
             />
+          )}
+          {recurrenceText && (
+            <span data-slot="memo-recurrence" className="shrink-0 whitespace-nowrap mu-caption text-mu-text-secondary select-none">
+              {recurrenceText}
+            </span>
           )}
           {spaceMetadata}
         </div>

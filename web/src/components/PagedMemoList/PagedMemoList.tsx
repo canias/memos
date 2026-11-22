@@ -1,26 +1,27 @@
 import { Button, Skeleton } from "@usememos/ui";
-import { ArrowUpIcon, KeyboardIcon } from "lucide-react";
+import { ArrowUpIcon, KeyboardIcon, Trash2Icon, XIcon } from "lucide-react";
 import { type ReactElement, type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useNavigate } from "react-router-dom";
 import { useAppSidebar } from "@/contexts/AppSidebarContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { isSearchFilter, useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import { MentionResolutionProvider } from "@/contexts/MentionResolutionContext";
 import { useNewMemo } from "@/contexts/NewMemoContext";
 import { useView } from "@/contexts/ViewContext";
-import { holdEditingPositions, memoNamesEditing, requestLeanEdit } from "@/hooks/memoEditRegistry";
+import { holdEditingPositions, memoNamesEditing } from "@/hooks/memoEditRegistry";
 import { useDelayedFlag } from "@/hooks/useDelayedFlag";
-import useMemoListHotkeys from "@/hooks/useMemoListHotkeys";
-import { useInfiniteMemos, useReorderMemos } from "@/hooks/useMemoQueries";
+import { useDevicePreferences } from "@/hooks/useDevicePreferences";
+import { useDeleteMemos, useInfiniteMemos, useReorderMemos } from "@/hooks/useMemoQueries";
 import { hoistMemoToFront } from "@/hooks/useMemoSorting";
 import { combineCELFilters } from "@/lib/cel-filter";
 import { DEFAULT_LIST_MEMOS_PAGE_SIZE, LOADING_INDICATOR_DELAY_MS } from "@/lib/constants";
+import { showErrorToast, toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { State } from "@/types/proto/api/common_pb";
 import type { Memo } from "@/types/proto/api/memo_service_pb";
 import { useTranslate } from "@/utils/i18n";
 import ColumnGrid, { ColumnGridUntrappedProvider, columnCountForWidth, GRID_GAP } from "../ColumnGrid";
+import ConfirmDialog from "../ConfirmDialog";
 import MemoFilterPopover from "../MemoFilterPopover";
 import MemoFilters from "../MemoFilters";
 import { previewOrder, useDragReorder } from "../MemoMetadata/Attachment/useDragReorder";
@@ -29,6 +30,8 @@ import Placeholder from "../Placeholder";
 import EmptyLine from "./EmptyLine";
 import MemoListError from "./MemoListError";
 import { estimateMemoCardHeight } from "./memoCardHeight";
+import { blockAnchor, moveBlock, orderUpdates } from "./memoSelection";
+import { useMemoSelection } from "./useMemoSelection";
 
 // Memo identity for React keys and grid planning. The pages use it for their renderer keys too,
 // so flow-list and grid identity can never drift apart. Deliberately name-only: content updates
@@ -141,7 +144,7 @@ const PagedMemoList = (props: Props) => {
   const t = useTranslate();
   const { isUserSettingsInitialized } = useAuth();
   const { filters, memoView, removeFilter, setFilters, setMemoView } = useMemoFilterContext();
-  const { setQuickFindOpen: openQuickFind, setShortcutsOpen: openShortcuts, setMemoFilterMenuOpen: openFilterMenu } = useAppSidebar();
+  const { setQuickFindOpen: openQuickFind, setShortcutsOpen: openShortcuts } = useAppSidebar();
   const { maxColumns, compactMode, fullWidth } = useView();
   // maxColumns is a ceiling: 1 = single reading column, 0 = as many as fit. The single
   // column renders in normal document flow; anything wider becomes the packed grid.
@@ -244,26 +247,77 @@ const PagedMemoList = (props: Props) => {
   // The manual order's drag: the shown order is the drop preview; dropping renumbers the
   // visible memos to their positions, so every card keeps a stable drag order value.
   const reorder = useReorderMemos();
+  const deleteMemos = useDeleteMemos();
+  const flowContainerRef = useRef<HTMLDivElement>(null);
+  const selectionEnabled = !useGrid && !isDisplayPending && !isInitialError;
+  const displayNames = useMemo(() => displayMemoList.map((memo) => memo.name), [displayMemoList]);
+  const selection = useMemoSelection({ containerRef: flowContainerRef, names: displayNames, enabled: selectionEnabled });
+  const selectedNames = selection.selected;
+  const isSelected = (memo: Memo) => selectedNames.has(memo.name);
+  // Dragging a selected card carries the whole selection; any other card drags alone and leaves the selection.
   const flowDrag = useDragReorder(displayMemoList.length, (from, to) => {
-    const preview = previewOrder(displayMemoList, from, to);
-    const updates = preview
-      .map((memo, index) => ({ name: memo.name, order: index + 1 }))
-      .filter((update, index) => preview[index].order !== update.order);
+    const dragged = displayMemoList[from];
+    const block = dragged && selectedNames.has(dragged.name) && selectedNames.size > 1;
+    const next = block
+      ? moveBlock(displayMemoList, isSelected, blockAnchor(displayMemoList, isSelected, from, to))
+      : previewOrder(displayMemoList, from, to);
+    const updates = orderUpdates(next);
     if (updates.length > 0) reorder.mutate(updates);
   });
-  const shownFlowList = props.dragSort ? previewOrder(displayMemoList, flowDrag.dragging, flowDrag.over) : displayMemoList;
+  const draggingBlock =
+    props.dragSort && flowDrag.dragging !== null && selectedNames.size > 1 && selectedNames.has(displayMemoList[flowDrag.dragging]?.name);
+  // While a block drags, the shown order is the block's drop preview; otherwise it's the single-card preview.
+  const shownFlowList = !props.dragSort
+    ? displayMemoList
+    : draggingBlock && flowDrag.dragging !== null && flowDrag.over !== null
+      ? moveBlock(displayMemoList, isSelected, blockAnchor(displayMemoList, isSelected, flowDrag.dragging, flowDrag.over))
+      : previewOrder(displayMemoList, flowDrag.dragging, flowDrag.over);
 
-  // The feed's keyboard: focus rings over cards, open and filter shortcuts. The focused
-  // card answers to enter (open) and e (edit in place) through its own handlers.
-  const navigate = useNavigate();
-  const { focusedName } = useMemoListHotkeys({
-    memos: displayMemoList,
-    onOpen: (memo) => navigate(`/${memo.name}`),
-    onEditFocused: (memo) => requestLeanEdit(memo.name),
-    onOpenQuickFind: () => openQuickFind(true),
-    onOpenFilters: () => openFilterMenu(true),
-    onOpenShortcuts: () => openShortcuts(true),
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const selectedList = displayMemoList.filter(isSelected);
+  const deletableSelection = selectedList.length > 0;
+  const { skipDeleteConfirm } = useDevicePreferences();
+  const confirmDeleteSelected = async () => {
+    const names = selectedList.map((memo) => memo.name);
+    const { deleted, failed } = await deleteMemos.mutateAsync(names);
+    if (deleted.length > 0) toast.add({ title: t("memo.deleted-count", { count: deleted.length }), type: "success" });
+    if (failed.length > 0) {
+      showErrorToast(t("memo.delete-failed-count", { count: failed.length }));
+      selection.setSelected(new Set(failed));
+    } else {
+      selection.clear();
+    }
+  };
+  const requestDeleteSelected = () => {
+    if (!deletableSelection) return;
+    if (skipDeleteConfirm) void confirmDeleteSelected();
+    else setDeleteOpen(true);
+  };
+
+  // Delete/Backspace removes the selection, but never while a field, the editor or a dialog has the keys,
+  // and never from a card that is being edited: selection and editing stay separate.
+  useEffect(() => {
+    if (!selectionEnabled) return;
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && selectedNames.size > 0 && !deleteOpen) {
+        const active = document.activeElement as HTMLElement | null;
+        if (!active?.closest("input, textarea, select, [contenteditable]:not([contenteditable=false])")) selection.clear();
+        return;
+      }
+      if (event.key !== "Delete" && event.key !== "Backspace") return;
+      if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey || deleteOpen) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("input, textarea, select, [contenteditable]:not([contenteditable=false]), [role=dialog], [role=alertdialog]"))
+        return;
+      if (memoNamesEditing().size > 0 && selectedList.some((memo) => memoNamesEditing().has(memo.name))) return;
+      if (!deletableSelection) return;
+      event.preventDefault();
+      requestDeleteSelected();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
   });
+
   const contents = useMemo(() => displayMemoList.map((memo) => memo.content), [displayMemoList]);
   const userNames = useMemo(
     () =>
@@ -333,14 +387,29 @@ const PagedMemoList = (props: Props) => {
     </>
   );
 
+  // Both the drag hook and the selection hook need the flow container.
+  const dragContainerRef = flowDrag.containerRef;
+  const setFlowContainer = useCallback(
+    (element: HTMLDivElement | null) => {
+      flowContainerRef.current = element;
+      dragContainerRef.current = props.dragSort ? element : null;
+    },
+    [dragContainerRef, props.dragSort],
+  );
+  const handleClickCapture = (event: React.MouseEvent) => {
+    selection.clickCapture(event);
+    if (props.dragSort && !event.isPropagationStopped()) flowDrag.clickCapture(event);
+  };
+
   const draggedMemo = props.dragSort && flowDrag.dragging !== null ? displayMemoList[flowDrag.dragging] : undefined;
   const children = (
     <MentionResolutionProvider contents={contents} userNames={userNames}>
       <div ref={layoutMeasureRef} className="w-full">
         <div
-          ref={props.dragSort ? flowDrag.containerRef : undefined}
-          onClickCapture={props.dragSort ? flowDrag.clickCapture : undefined}
-          className={cn("flex flex-col justify-start w-full mx-auto", useGrid || fullWidth ? "max-w-none" : "max-w-2xl")}
+          ref={useGrid ? undefined : setFlowContainer}
+          onPointerDown={selectionEnabled ? selection.containerPointerDown : undefined}
+          onClickCapture={useGrid ? undefined : handleClickCapture}
+          className={cn("relative flex flex-col justify-start w-full mx-auto", useGrid || fullWidth ? "max-w-none" : "max-w-2xl")}
         >
           {useGrid ? (
             <>
@@ -367,37 +436,43 @@ const PagedMemoList = (props: Props) => {
               {initialLoader}
               {initialError}
               {shownFlowList.map((memo, position) => {
-                if (!props.dragSort && focusedName !== memo.name) {
+                if (!props.dragSort) {
+                  const picked = selectedNames.has(memo.name);
                   return (
-                    <div key={getMemoKey(memo)} data-memo-name={memo.name}>
+                    <div
+                      key={getMemoKey(memo)}
+                      data-memo-name={memo.name}
+                      data-selected={picked || undefined}
+                      className={cn("rounded-mu-lg", picked && "outline-2 outline-offset-0 outline-mu-primary [&>*]:bg-mu-selected")}
+                    >
                       {props.renderer(memo, { compact: effectiveCompact })}
                     </div>
                   );
                 }
                 const index = displayMemoList.indexOf(memo);
                 const placeholder = props.dragSort && flowDrag.dragging === index;
+                const picked = selectedNames.has(memo.name);
+                // The other cards of a dragged selection fade, so the block reads as one lifted group.
+                const carried = draggingBlock && picked && !placeholder;
                 return (
                   <div
                     key={getMemoKey(memo)}
                     data-memo-name={memo.name}
+                    data-selected={picked || undefined}
                     data-reorder-position={position}
                     data-reorder-key={memo.name}
                     data-reorder-placeholder={placeholder || undefined}
-                    onPointerDown={props.dragSort ? flowDrag.pointerDown(index, { longPress: true }) : undefined}
-                    onKeyDown={props.dragSort ? flowDrag.keyDown(index) : undefined}
+                    onPointerDown={flowDrag.pointerDown(index, { longPress: true })}
+                    onKeyDown={flowDrag.keyDown(index)}
                     aria-hidden={placeholder || undefined}
                     className={cn(
-                      "relative",
-                      focusedName === memo.name && "rounded-mu-lg outline-2 outline-offset-2 outline-mu-line",
+                      "relative rounded-mu-lg",
+                      picked && "outline-2 outline-offset-0 outline-mu-primary [&>*]:bg-mu-selected",
                       placeholder && "[&>*]:opacity-0",
+                      carried && "opacity-40",
                     )}
                   >
                     {props.renderer(memo, { compact: effectiveCompact })}
-                    {focusedName === memo.name && (
-                      <p className="pointer-events-none absolute -bottom-5 start-2 z-10 mu-caption text-mu-text-secondary">
-                        {t("memo.focus-cue")}
-                      </p>
-                    )}
                   </div>
                 );
               })}
@@ -417,6 +492,43 @@ const PagedMemoList = (props: Props) => {
           )}
         </div>
       </div>
+
+      {selection.band && (
+        <div
+          aria-hidden
+          className="pointer-events-none fixed z-(--mu-layer-popup) rounded-mu-sm border border-mu-primary bg-mu-primary/10"
+          style={{
+            left: (flowContainerRef.current?.getBoundingClientRect().left ?? 0) + selection.band.left,
+            top: (flowContainerRef.current?.getBoundingClientRect().top ?? 0) + selection.band.top,
+            width: selection.band.right - selection.band.left,
+            height: selection.band.bottom - selection.band.top,
+          }}
+        />
+      )}
+
+      {selectedList.length > 0 && !useGrid && (
+        <div
+          role="status"
+          className="fixed bottom-4 start-1/2 z-(--mu-layer-popup) flex -translate-x-1/2 items-center gap-1 rounded-mu-lg border border-mu-edge bg-mu-surface px-2 py-1 shadow-lg"
+        >
+          <span className="px-2 mu-label text-mu-text">{t("memo.selected-count", { count: selectedList.length })}</span>
+          <Button variant="ghost" size="sm" icon={<Trash2Icon />} onClick={requestDeleteSelected}>
+            {t("common.delete")}
+          </Button>
+          <Button variant="ghost" size="sm" icon={<XIcon />} aria-label={t("common.clear")} onClick={selection.clear} />
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title={t("memo.delete-selected-confirm", { count: selectedList.length })}
+        description={t("memo.delete-confirm-description")}
+        confirmLabel={t("common.delete")}
+        cancelLabel={t("common.cancel")}
+        onConfirm={confirmDeleteSelected}
+        confirmVariant="danger"
+      />
 
       {/* The lifted memo follows the pointer above everything; its card shows the drop slot. */}
       {draggedMemo &&

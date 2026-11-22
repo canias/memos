@@ -124,16 +124,17 @@ function isInsideCodeBlock(markdown: string, oneBasedLine: number): boolean {
 }
 
 const NEXT_STATE: Record<string, TaskState> = { " ": "doing", "/": "done", x: "plain", X: "plain" };
+const PREVIOUS_STATE: Record<string, TaskState> = { " ": "plain", "/": "todo", x: "doing", X: "doing" };
 const STATE_MARKER: Record<TaskState, string> = { todo: " ", doing: "/", done: "x", plain: " " };
 
 /**
  * Cycles the task state of the source line holding `caret`: a task line moves
  * one step through todo, doing, done, then back to a plain list item, and a
- * plain list line becomes a todo. The caret keeps its offset into the line's
- * text. Returns null when the line is not a list or task line, so callers can
- * fall back to a whole-block toggle.
+ * plain list line becomes a todo. `direction` -1 walks the same cycle backwards.
+ * The caret keeps its offset into the line's text. Returns null when the line is
+ * not a list or task line, so callers can fall back to a whole-block toggle.
  */
-export function cycleTaskLineAt(markdown: string, caret: number): LineTransformResult | null {
+export function cycleTaskLineAt(markdown: string, caret: number, direction: 1 | -1 = 1): LineTransformResult | null {
   const lines = lineTable(markdown);
   const tableIndex = lines.starts.findIndex((lineStart, index) => lineStart <= caret && caret <= lines.ends[index]);
   if (tableIndex === -1) {
@@ -149,19 +150,28 @@ export function cycleTaskLineAt(markdown: string, caret: number): LineTransformR
   const lineEnd = lines.ends[tableIndex];
   const line = markdown.slice(lineStart, lineEnd);
   const match = line.match(LIST_LINE_REGEXP);
-  if (!match) {
+
+  // A plain paragraph line has no list marker: it starts the cycle as a bullet todo.
+  // Matching the list regexp with an empty prefix keeps the same rebuild path below.
+  const plainLine = match ? null : line.match(/^((?:[ \t]*>)*[ \t]*)(\[([ xX/])\][ \t]?)?(.*)$/);
+  if (!match && !plainLine) {
     return null;
   }
+  const parsed = match ?? plainLine;
+  const prefix = match ? parsed![1] : `${parsed![1]}- `;
+  const box = parsed![2];
+  const boxMarker = parsed![3];
+  const text = parsed![4];
+  // Where the text starts on the original line (before any marker added for a plain line).
+  const originalPrefix = match ? parsed![1] : plainLine![1];
+  const oldTextStart = lineStart + originalPrefix.length + (box?.length ?? 0);
 
-  const prefix = match[1];
-  const box = match[2];
-  const boxMarker = match[3];
-  const text = match[4];
-  const oldTextStart = lineStart + prefix.length + (box?.length ?? 0);
-
-  const state: TaskState = box ? NEXT_STATE[boxMarker] : "todo";
+  // A plain line starts at todo going forward; going backward it wraps to done.
+  const state: TaskState = box ? (direction === 1 ? NEXT_STATE : PREVIOUS_STATE)[boxMarker] : direction === 1 ? "todo" : "done";
   const marker = STATE_MARKER[state];
-  const rebuiltLine = state === "plain" ? `${prefix}${text}` : `${prefix}[${marker}] ${text}`;
+  // Done goes back to plain text: the bullet is dropped too, so no dash is left behind.
+  const plainPrefix = match ? parsed![1].replace(/[ \t]*(?:[-*+]|\d{1,9}[.)])[ \t]+$/, "") : originalPrefix;
+  const rebuiltLine = state === "plain" ? `${plainPrefix}${text}` : `${prefix}[${marker}] ${text}`;
 
   // Replace the exact line span; lineTable's end is before the line ending,
   // so the ending and the rest of the document carry over untouched.
@@ -169,7 +179,7 @@ export function cycleTaskLineAt(markdown: string, caret: number): LineTransformR
 
   // The caret keeps its offset into the text after the box, so changing the
   // box does not move it.
-  const newTextStart = lineStart + prefix.length + (state === "plain" ? 0 : 4);
+  const newTextStart = state === "plain" ? lineStart + plainPrefix.length : lineStart + prefix.length + 4;
   const offsetInText = Math.max(0, Math.min(caret, lineEnd) - oldTextStart);
 
   return {

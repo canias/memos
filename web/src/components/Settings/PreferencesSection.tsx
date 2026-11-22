@@ -2,6 +2,7 @@ import { create } from "@bufbuild/protobuf";
 import { Select, Switch } from "@usememos/ui";
 import { useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useView } from "@/contexts/ViewContext";
 import { updateDevicePreferences, useDevicePreferences } from "@/hooks/useDevicePreferences";
 import { useUpdateUserGeneralSetting } from "@/hooks/useUserQueries";
 import { UserSetting_GeneralSetting, UserSetting_GeneralSettingSchema } from "@/types/proto/api/user_service_pb";
@@ -20,6 +21,7 @@ const PreferencesSection = () => {
   const { currentUser, userGeneralSetting: generalSetting, refetchSettings } = useAuth();
   const { mutate: updateUserGeneralSetting, isPending: isUpdatingGeneralSetting } = useUpdateUserGeneralSetting(currentUser?.name);
   const devicePreferences = useDevicePreferences();
+  const { manualOrder, setManualOrder } = useView();
 
   const handleLocaleSelectChange = (locale: Locale) => {
     // Apply locale immediately for instant UI feedback and persist to localStorage
@@ -171,6 +173,32 @@ const PreferencesSection = () => {
               aria-label={t("setting.preference.double-click-edit")}
               checked={devicePreferences.doubleClickEdit}
               onCheckedChange={(doubleClickEdit) => updateDevicePreferences({ doubleClickEdit })}
+            />
+          </SettingListItem>
+
+          <SettingListItem label={t("memo.manual-order")} description={t("memo.manual-order-hint")}>
+            <Switch aria-label={t("memo.manual-order")} checked={manualOrder} onCheckedChange={setManualOrder} />
+          </SettingListItem>
+
+          <SettingListItem
+            label={t("setting.preference.single-click-edit")}
+            description={t("setting.preference.single-click-edit-description")}
+          >
+            <Switch
+              aria-label={t("setting.preference.single-click-edit")}
+              checked={devicePreferences.singleClickEdit}
+              onCheckedChange={(singleClickEdit) => updateDevicePreferences({ singleClickEdit })}
+            />
+          </SettingListItem>
+
+          <SettingListItem
+            label={t("setting.preference.skip-delete-confirm")}
+            description={t("setting.preference.skip-delete-confirm-description")}
+          >
+            <Switch
+              aria-label={t("setting.preference.skip-delete-confirm")}
+              checked={devicePreferences.skipDeleteConfirm}
+              onCheckedChange={(skipDeleteConfirm) => updateDevicePreferences({ skipDeleteConfirm })}
             />
           </SettingListItem>
         </SettingList>

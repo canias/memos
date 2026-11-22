@@ -75,9 +75,16 @@ const contentLength = (block: Block | undefined): number => (block && isTextBloc
  * block's offsets so the selection can survive the reset. A caret on other blocks turns
  * them into task items, as the toolbar toggle does.
  */
-const cycleTaskOp = ({ editor, markdown, blocks, blockIndex, selection }: CaretOpContext): CaretOpResult | null => {
+const cycleTaskOp = ({
+  editor,
+  markdown,
+  blocks,
+  blockIndex,
+  selection,
+  direction,
+}: CaretOpContext & { direction: 1 | -1 }): CaretOpResult | null => {
   if (editor.mode === "source") {
-    const result = cycleTaskLineAt(markdown, selection.anchor.offset);
+    const result = cycleTaskLineAt(markdown, selection.anchor.offset, direction);
     return result ? { markdown: result.markdown, caret: { kind: "offset", offset: result.caret } } : null;
   }
 
@@ -90,7 +97,7 @@ const cycleTaskOp = ({ editor, markdown, blocks, blockIndex, selection }: CaretO
   if (markerLine === undefined) {
     return null;
   }
-  const result = cycleTaskLineAt(markdown, lineTable(markdown).starts[markerLine - 1]);
+  const result = cycleTaskLineAt(markdown, lineTable(markdown).starts[markerLine - 1], direction);
   return result ? { markdown: result.markdown, caret: { kind: "same" } } : null;
 };
 
@@ -135,8 +142,37 @@ const moveLineOp = ({
     : { markdown: result.markdown, caret: { kind: "block", block: postBlockIndex } };
 };
 
+/**
+ * Toggles a bullet on the caret line: a plain line gets "- ", a bullet line loses it. Task
+ * boxes stay where they are, so the shortcut only changes the list marker.
+ */
+export const toggleBulletAt = (markdown: string, caret: number): { markdown: string; caret: number } | null => {
+  const lines = lineTable(markdown);
+  const index = lines.starts.findIndex((start, i) => start <= caret && caret <= lines.ends[i]);
+  if (index === -1) return null;
+  const lineStart = lines.starts[index];
+  const lineEnd = lines.ends[index];
+  const line = markdown.slice(lineStart, lineEnd);
+  const bullet = line.match(/^((?:[ \t]*>)*[ \t]*)([-*+])[ \t]+/);
+  if (bullet) {
+    const removed = bullet[0].length - bullet[1].length;
+    const next = bullet[1] + line.slice(bullet[0].length);
+    return {
+      markdown: markdown.slice(0, lineStart) + next + markdown.slice(lineEnd),
+      caret: Math.max(lineStart + bullet[1].length, caret - removed),
+    };
+  }
+  const indent = line.match(/^((?:[ \t]*>)*[ \t]*)/)?.[1] ?? "";
+  const next = indent + "- " + line.slice(indent.length);
+  return { markdown: markdown.slice(0, lineStart) + next + markdown.slice(lineEnd), caret: caret + 2 };
+};
+
 /** Runs one caret op and, on success, resets the document and re-anchors the selection. */
-const runCaretOp = (editor: Editor, op: (context: CaretOpContext) => CaretOpResult | null): boolean => {
+const runCaretOp = (
+  editor: Editor,
+  op: (context: CaretOpContext) => CaretOpResult | null,
+  onMarkdownChange?: (markdown: string) => void,
+): boolean => {
   const markdown = editor.getMarkdown();
   const selection = editor.selectionToJSON();
   const result = op({
@@ -150,6 +186,8 @@ const runCaretOp = (editor: Editor, op: (context: CaretOpContext) => CaretOpResu
     return false;
   }
   editor.setMarkdown(result.markdown);
+  // setMarkdown emits no change, so tell the host the document moved; otherwise a save writes the old text.
+  onMarkdownChange?.(result.markdown);
   if (result.caret.kind === "offset") {
     editor.setSelection({
       anchor: { block: selection.anchor.block, offset: result.caret.offset },
@@ -174,27 +212,54 @@ const runCaretOp = (editor: Editor, op: (context: CaretOpContext) => CaretOpResu
 };
 
 /**
- * The editing hotkeys. Ctrl+Enter cycles the caret line's task state through todo,
- * doing, done and a plain item; Alt+ArrowUp/Down moves the line or list item; Ctrl/⌘+S
- * (and ⌘+Enter) saves the memo. The earlier extension wins over the editor's default
- * keys, so Ctrl+Enter no longer submits on Windows and Linux.
+ * The editing hotkeys. Ctrl+Y cycles the caret line's task state forward through todo,
+ * doing, done and a plain item (Ctrl+Shift+Y and Ctrl+ArrowLeft go backward); Ctrl/⌘+. toggles
+ * a bullet; Alt+ArrowUp/Down moves the line or list item; Ctrl/⌘+S and Ctrl/⌘+Enter save the memo.
+ * The earlier extension wins over the editor's default keys.
  */
-export const memoEditorHotkeys = ({ onSave }: { onSave: () => void }): Extension => ({
+export const memoEditorHotkeys = ({
+  onSave,
+  onMarkdownChange,
+}: {
+  onSave: () => void;
+  onMarkdownChange?: (markdown: string) => void;
+}): Extension => ({
   name: "memoHotkeys",
   keymap: {
-    "Ctrl-Enter": ({ editor }) => {
-      runCaretOp(editor, cycleTaskOp);
+    // Ctrl+Y cycles the caret line forward (plain → todo → doing → done → plain); Ctrl+Shift+Y and
+    // Ctrl+ArrowLeft/Right cycle it backward or forward respectively.
+    "Ctrl-y": ({ editor }) => runCaretOp(editor, (context) => cycleTaskOp({ ...context, direction: 1 }), onMarkdownChange),
+    "Ctrl-Y": ({ editor }) => runCaretOp(editor, (context) => cycleTaskOp({ ...context, direction: -1 }), onMarkdownChange),
+    "Ctrl-ArrowRight": ({ editor }) => runCaretOp(editor, (context) => cycleTaskOp({ ...context, direction: 1 }), onMarkdownChange),
+    "Ctrl-ArrowLeft": ({ editor }) => runCaretOp(editor, (context) => cycleTaskOp({ ...context, direction: -1 }), onMarkdownChange),
+    // Ctrl/⌘+. toggles a bullet on the caret line, the same way the task cycle edits a line.
+    "Mod-.": ({ editor }) => {
+      const markdown = editor.getMarkdown();
+      const selection = editor.selectionToJSON();
+      const result = toggleBulletAt(markdown, selection.anchor.offset);
+      if (!result) return true;
+      editor.setMarkdown(result.markdown);
+      onMarkdownChange?.(result.markdown);
+      editor.setSelection({
+        anchor: { block: selection.anchor.block, offset: result.caret },
+        focus: { block: selection.focus.block, offset: result.caret },
+      });
       return true;
     },
     "Mod-s": () => {
       onSave();
       return true;
     },
-    "Meta-Enter": () => {
+    // Mod is Cmd on macOS and Ctrl elsewhere; Ctrl+Enter saves on macOS too.
+    "Mod-Enter": () => {
       onSave();
       return true;
     },
-    "Alt-ArrowUp": ({ editor }) => runCaretOp(editor, (context) => moveLineOp({ ...context, delta: -1 })),
-    "Alt-ArrowDown": ({ editor }) => runCaretOp(editor, (context) => moveLineOp({ ...context, delta: 1 })),
+    "Ctrl-Enter": () => {
+      onSave();
+      return true;
+    },
+    "Alt-ArrowUp": ({ editor }) => runCaretOp(editor, (context) => moveLineOp({ ...context, delta: -1 }), onMarkdownChange),
+    "Alt-ArrowDown": ({ editor }) => runCaretOp(editor, (context) => moveLineOp({ ...context, delta: 1 }), onMarkdownChange),
   },
 });

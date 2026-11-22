@@ -56,6 +56,11 @@ export const editorActions = {
     payload: timestamps,
   }),
 
+  setRecurrence: (recurrence: EditorState["recurrence"]): EditorAction => ({
+    type: "SET_RECURRENCE",
+    payload: recurrence,
+  }),
+
   setRecorderBusy: (value: boolean): EditorAction => ({
     type: "SET_RECORDER_BUSY",
     payload: value,

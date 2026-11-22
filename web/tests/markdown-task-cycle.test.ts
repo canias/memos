@@ -20,7 +20,7 @@ describe("cycleTaskLineAt", () => {
     const markdown = "- [x] ship the release";
     const result = cycleTaskLineAt(markdown, 15);
 
-    expect(result).toEqual({ markdown: "- ship the release", caret: 11, state: "plain" });
+    expect(result).toEqual({ markdown: "ship the release", caret: 9, state: "plain" });
   });
 
   it("cycles a plain list item to a todo", () => {
@@ -42,14 +42,27 @@ describe("cycleTaskLineAt", () => {
     const markdown = "- [x] done";
     const result = cycleTaskLineAt(markdown, 2);
 
-    expect(result?.markdown).toBe("- done");
-    expect(result?.caret).toBe(2);
+    expect(result?.markdown).toBe("done");
+    expect(result?.caret).toBe(0);
   });
 
-  it("leaves non-list lines untouched and returns null", () => {
-    const markdown = "Just a paragraph";
+  it("turns a plain line into a todo first, then cycles through doing, done and back to plain", () => {
+    const first = cycleTaskLineAt("Just a paragraph", 5);
+    expect(first?.markdown).toBe("- [ ] Just a paragraph");
+    expect(first?.state).toBe("todo");
 
-    expect(cycleTaskLineAt(markdown, 5)).toBeNull();
+    const second = cycleTaskLineAt(first!.markdown, first!.caret);
+    expect(second?.markdown).toBe("- [/] Just a paragraph");
+    expect(second?.state).toBe("doing");
+
+    const third = cycleTaskLineAt(second!.markdown, second!.caret);
+    expect(third?.markdown).toBe("- [x] Just a paragraph");
+    expect(third?.state).toBe("done");
+
+    // A done line returns to plain text: no bullet is left behind.
+    const fourth = cycleTaskLineAt(third!.markdown, third!.caret);
+    expect(fourth?.markdown).toBe("Just a paragraph");
+    expect(fourth?.state).toBe("plain");
   });
 
   it("returns null for code lines", () => {

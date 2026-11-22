@@ -55,7 +55,7 @@ export interface EditSessionProps {
 export interface EditorContentProps {
   placeholder?: string;
   sourceMode: EditorSourceModeToggle;
-  /** Invoked by the in-editor save shortcut (Ctrl/⌘+S and ⌘+Enter). */
+  /** Invoked by the in-editor save shortcut (Ctrl/⌘+S and Ctrl/⌘+Enter). */
   onSave: () => void;
   onFiles: (files: File[], origin: EditorFileOrigin) => void;
 }
@@ -73,13 +73,10 @@ export interface EditorSourceModeToggle {
   isSourceMode: boolean;
   onToggle: () => void;
 }
-/** A schedule request the composer confirms: content captured at confirm time. */
+/** A date and recurrence the composer stages on the memo; it saves with the memo. */
 export interface ScheduleDraft {
-  /** The memo body; the composer fills it from the live editor at confirm time. */
-  content?: string;
+  /** The memo's date: its create time and the first occurrence. */
   startAt: Date;
-  visibility?: Visibility;
-  space?: string;
   everyNDays?: number;
   weekdayMask?: number;
 }
@@ -100,7 +97,7 @@ export interface EditorToolbarProps {
   onInsertImages: (files: File[]) => void;
   /** Opens the drawing sheet for a new drawing. */
   onDrawingClick?: () => void;
-  /** Moves the current draft into a publishing plan; only the composer offers it. */
+  /** Stages a date and recurrence on the memo; saving applies them. */
   onSchedule?: (draft: ScheduleDraft) => void;
 }
 

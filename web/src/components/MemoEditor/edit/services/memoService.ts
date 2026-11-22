@@ -5,7 +5,7 @@ import { getEditorReferenceRelations } from "@/components/MemoMetadata/Relation/
 import type { Attachment } from "@/types/proto/api/attachment_service_pb";
 import { AttachmentSchema } from "@/types/proto/api/attachment_service_pb";
 import type { Memo } from "@/types/proto/api/memo_service_pb";
-import { MemoSchema } from "@/types/proto/api/memo_service_pb";
+import { Memo_MemoRecurrenceSchema, MemoSchema } from "@/types/proto/api/memo_service_pb";
 import type { EditorState } from "../state";
 import type { LocalFile } from "../types/attachment";
 import { orderAttachments } from "../utils/attachmentOrder";
@@ -28,6 +28,14 @@ export function mergeUploadedAttachments(attachments: Attachment[], uploaded: At
   const merged = attachments.map((attachment) => byName.get(attachment.name) ?? attachment);
   const existing = new Set(attachments.map((attachment) => attachment.name));
   return [...merged, ...uploaded.filter((attachment) => !existing.has(attachment.name))];
+}
+
+/** The composer's recurrence as the editor state holds it, read from a saved memo. */
+function recurrenceFromMemo(recurrence: NonNullable<Memo["recurrence"]>): NonNullable<EditorState["recurrence"]> {
+  return {
+    ...(recurrence.everyNDays !== undefined ? { everyNDays: recurrence.everyNDays } : {}),
+    ...(recurrence.weekdayMask !== undefined ? { weekdayMask: recurrence.weekdayMask } : {}),
+  };
 }
 
 function buildUpdateMask(
@@ -91,6 +99,11 @@ function buildUpdateMask(
       mask.add("update_time");
       patch.updateTime = timestampFromDate(state.timestamps.updateTime);
     }
+  }
+
+  if (!isEqual(state.recurrence, prevMemo.recurrence ? recurrenceFromMemo(prevMemo.recurrence) : undefined)) {
+    mask.add("recurrence");
+    patch.recurrence = state.recurrence ? create(Memo_MemoRecurrenceSchema, state.recurrence) : undefined;
   }
 
   if (state.drawingNeedsMemoUpdate) mask.add("update_time");
@@ -193,6 +206,7 @@ export const memoService = {
       location: state.metadata.location,
       createTime: state.timestamps.createTime ? timestampFromDate(state.timestamps.createTime) : undefined,
       updateTime: state.timestamps.updateTime ? timestampFromDate(state.timestamps.updateTime) : undefined,
+      recurrence: state.recurrence ? create(Memo_MemoRecurrenceSchema, state.recurrence) : undefined,
       space: options.parentMemoName ? undefined : (options.space ?? state.metadata.space),
     });
 

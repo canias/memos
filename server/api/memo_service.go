@@ -392,6 +392,15 @@ func (s *APIService) UpdateMemo(ctx context.Context, request *apipb.UpdateMemoRe
 			if err := memopayload.RebuildMemoPayload(ctx, &nextMemo, s.MarkdownService); err != nil {
 				return nil, status.Errorf(codes.Internal, "failed to rebuild memo payload: %v", err)
 			}
+			// A recurring memo whose tasks are all done rolls over: its tasks reopen and its
+			// date moves to the next occurrence, all in this one save.
+			if rollover := rollRecurringMemo(&nextMemo); rollover != nil {
+				if err := memopayload.RebuildMemoPayload(ctx, &nextMemo, s.MarkdownService); err != nil {
+					return nil, status.Errorf(codes.Internal, "failed to rebuild memo payload: %v", err)
+				}
+				createdTs := rollover.CreatedTs
+				update.CreatedTs = &createdTs
+			}
 			update.Content = &nextMemo.Content
 			update.Payload = nextMemo.Payload
 		} else if path == "pinned" {
@@ -404,12 +413,31 @@ func (s *APIService) UpdateMemo(ctx context.Context, request *apipb.UpdateMemoRe
 		} else if path == "state" {
 			rowStatus := convertStateToStore(request.Memo.State)
 			update.RowStatus = &rowStatus
+		} else if path == "recurrence" {
+			// The rule is anchored to the memo's date; a cleared rule stops recurring.
+			recurrence, err := recurrenceFromInput(request.Memo.Recurrence, nextMemo.CreatedTs)
+			if err != nil {
+				return nil, err
+			}
+			if nextMemo.Payload == nil {
+				nextMemo.Payload = &storepb.MemoPayload{}
+			}
+			nextMemo.Payload.Recurrence = recurrence
+			update.Payload = nextMemo.Payload
 		} else if path == "create_time" {
 			if request.Memo.CreateTime == nil || !request.Memo.CreateTime.IsValid() {
 				return nil, status.Errorf(codes.InvalidArgument, "create_time is invalid")
 			}
 			createdTs := request.Memo.CreateTime.AsTime().Unix()
 			update.CreatedTs = &createdTs
+			// A recurring memo's next occurrence follows the date the user gave it, so the
+			// recurrence stays anchored to the memo's own date instead of a stale one.
+			if nextMemo.Payload != nil && nextMemo.Payload.Recurrence != nil {
+				if err := reanchorRecurrence(&nextMemo, createdTs); err != nil {
+					return nil, status.Errorf(codes.InvalidArgument, "failed to re-anchor recurrence: %v", err)
+				}
+				update.Payload = nextMemo.Payload
+			}
 		} else if path == "update_time" {
 			updatedTsSec := time.Now().Unix()
 			if request.Memo.UpdateTime != nil {

@@ -275,6 +275,8 @@ export function useDragReorder(count: number, onMove: (from: number, to: number)
   /** Starts tracking a press on an item. `longPress` is for whole tiles, so touch scrolling still works. */
   const pointerDown = (index: number, options?: { longPress?: boolean }) => (event: ReactPointerEvent<HTMLElement>) => {
     if (event.button !== 0 || count < 2 || draggingRef.current !== null) return;
+    // Ctrl, Cmd and Shift presses pick items (a selection) instead of lifting them.
+    if (event.ctrlKey || event.metaKey || event.shiftKey) return;
     // A press on one of the item's own controls is that control's, not a drag; the grip is the exception.
     const control = (event.target as HTMLElement).closest("button, a, [role=menuitem]");
     if (control && control !== event.currentTarget && !control.hasAttribute("data-reorder-handle")) return;
@@ -303,6 +305,10 @@ export function useDragReorder(count: number, onMove: (from: number, to: number)
 
   /** Arrow keys move the focused item one place earlier or later. */
   const keyDown = (index: number) => (event: KeyboardEvent<HTMLElement>) => {
+    // Keys typed into an input or the editor inside the item are theirs. Any focused descendant
+    // (not just the item itself) keeps its arrow keys, so only the item's own focus reorders.
+    const origin = event.target as HTMLElement;
+    if (origin !== event.currentTarget) return;
     const step =
       event.key === "ArrowUp" || event.key === "ArrowLeft" ? -1 : event.key === "ArrowDown" || event.key === "ArrowRight" ? 1 : 0;
     if (step === 0) return;

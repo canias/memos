@@ -3,6 +3,7 @@ import copy from "copy-to-clipboard";
 import { useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useInstance } from "@/contexts/InstanceContext";
+import { useDevicePreferences } from "@/hooks/useDevicePreferences";
 import { memoKeys, useDeleteMemo, useUpdateMemo } from "@/hooks/useMemoQueries";
 import useNavigateTo from "@/hooks/useNavigateTo";
 import { userKeys } from "@/hooks/useUserQueries";
@@ -31,6 +32,7 @@ export const useMemoActionHandlers = ({ memo, parentPage, onEdit, setDeleteDialo
   const { profile } = useInstance();
   const { mutateAsync: updateMemo } = useUpdateMemo(memo.name);
   const { mutateAsync: deleteMemo } = useDeleteMemo();
+  const { skipDeleteConfirm } = useDevicePreferences();
   const isInMemoDetailPage = isMemoDetailPath(location.pathname, memo.name);
 
   const memoUpdatedCallback = useCallback(() => {
@@ -133,10 +135,6 @@ export const useMemoActionHandlers = ({ memo, parentPage, onEdit, setDeleteDialo
     await updateMemoContent(uncheckAllTasks(memo.content), "Uncheck memo task list items");
   }, [memo.content, updateMemoContent]);
 
-  const handleDeleteMemoClick = useCallback(() => {
-    setDeleteDialogOpen(true);
-  }, [setDeleteDialogOpen]);
-
   const confirmDeleteMemo = useCallback(async () => {
     try {
       await deleteMemo(memo.name);
@@ -154,6 +152,15 @@ export const useMemoActionHandlers = ({ memo, parentPage, onEdit, setDeleteDialo
     }
     memoUpdatedCallback();
   }, [memo.name, memo.parent, t, isInMemoDetailPage, parentPage, navigateTo, memoUpdatedCallback, deleteMemo, queryClient]);
+
+  // With the device preference on, Delete removes the memo at once; otherwise it asks first.
+  const handleDeleteMemoClick = useCallback(() => {
+    if (skipDeleteConfirm) {
+      void confirmDeleteMemo();
+      return;
+    }
+    setDeleteDialogOpen(true);
+  }, [skipDeleteConfirm, confirmDeleteMemo, setDeleteDialogOpen]);
 
   return {
     isInMemoDetailPage,

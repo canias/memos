@@ -30,7 +30,6 @@ const (
 	SpaceNamePrefix            = "spaces/"
 	SpaceMemberNamePrefix      = "members/"
 	SpaceInvitationNamePrefix  = "invitations/"
-	ScheduleNamePrefix         = "schedules/"
 )
 
 // GetNameParentTokens returns the tokens from a resource name.
@@ -117,22 +116,6 @@ func ExtractSpaceMemberTokensFromName(name string) (string, string, error) {
 		return "", "", err
 	}
 	return tokens[0], tokens[1], nil
-}
-
-// ExtractScheduleOwnerTokensFromName returns the owner's username and schedule
-// UID from a Schedule resource name.
-// e.g., "users/alice/schedules/uuid" -> ("alice", "uuid").
-func ExtractScheduleOwnerTokensFromName(name string) (string, string, error) {
-	tokens, err := GetNameParentTokens(name, UserNamePrefix, ScheduleNamePrefix)
-	if err != nil {
-		return "", "", err
-	}
-	return tokens[0], tokens[1], nil
-}
-
-// buildScheduleName builds a Schedule resource name.
-func buildScheduleName(username, uid string) string {
-	return fmt.Sprintf("%s%s/%s%s", UserNamePrefix, username, ScheduleNamePrefix, uid)
 }
 
 // ExtractSpaceInvitationTokensFromName returns the Space UID and invitee

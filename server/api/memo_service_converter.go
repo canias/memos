@@ -64,6 +64,7 @@ func (s *APIService) convertMemoFromStoreWithCreators(ctx context.Context, memo 
 	if memo.Payload != nil {
 		memoMessage.Tags = memo.Payload.Tags
 		memoMessage.Property = convertMemoPropertyFromStore(memo.Payload.Property)
+		memoMessage.Recurrence = convertMemoRecurrenceFromStore(memo.Payload.Recurrence)
 		memoMessage.Location = convertLocationFromStore(memo.Payload.Location)
 	}
 
@@ -430,4 +431,15 @@ func validateUpdateMemoVisibility(visibility apipb.Visibility) (store.Visibility
 		return "", status.Errorf(codes.InvalidArgument, "visibility must be specified")
 	}
 	return validateCreateMemoVisibility(visibility)
+}
+
+// convertMemoRecurrenceFromStore exposes a recurring memo's rule; its date is create_time.
+func convertMemoRecurrenceFromStore(recurrence *storepb.MemoPayload_Recurrence) *apipb.Memo_MemoRecurrence {
+	if recurrence == nil {
+		return nil
+	}
+	return &apipb.Memo_MemoRecurrence{
+		EveryNDays:  recurrence.EveryNDays,
+		WeekdayMask: recurrence.WeekdayMask,
+	}
 }

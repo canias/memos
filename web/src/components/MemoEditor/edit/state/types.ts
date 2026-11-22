@@ -29,6 +29,8 @@ export interface EditorState {
     createTime?: Date;
     updateTime?: Date;
   };
+  /** Recurrence rule; the memo's create time is its next occurrence. Undefined = not recurring. */
+  recurrence?: { everyNDays?: number; weekdayMask?: number };
   localFiles: LocalFile[];
   /** The order of saved attachments and new files together, as keys (see utils/attachmentOrder).
    *  Empty until the user reorders; the save keeps it. */
@@ -54,6 +56,7 @@ export type EditorAction =
   | { type: "SET_LOADING"; payload: { key: LoadingKey; value: boolean } }
   | { type: "SET_PENDING_INLINE_IMAGE_INSERTIONS"; payload: number }
   | { type: "SET_TIMESTAMPS"; payload: Partial<EditorState["timestamps"]> }
+  | { type: "SET_RECURRENCE"; payload: EditorState["recurrence"] }
   | { type: "SET_RECORDER_BUSY"; payload: boolean }
   | { type: "ACCEPT_SUGGESTION"; payload: string }
   | { type: "SET_DRAWING_SAVE_ERROR"; payload: EditorState["drawingSaveError"] }

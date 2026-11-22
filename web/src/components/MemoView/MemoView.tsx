@@ -1,21 +1,9 @@
-import {
-  forwardRef,
-  memo,
-  Suspense,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { forwardRef, memo, Suspense, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useColumnGridUntrapped } from "@/components/ColumnGrid/ColumnGridContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useResolvedUser } from "@/contexts/MentionResolutionContext";
-import { consumeLeanEditRequest, hasLeanEditRequest, setMemoEditing, subscribeLeanEditRequests } from "@/hooks/memoEditRegistry";
+import { setMemoEditing } from "@/hooks/memoEditRegistry";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import { isMemoBlurred } from "@/lib/tag";
 import { cn } from "@/lib/utils";
@@ -47,8 +35,6 @@ const MemoView = forwardRef<MemoViewHandle, MemoViewProps>((props, ref) => {
   } = props;
   const cardRef = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
-  /** Lean editing: the body itself turns editable in place, autosaving with no composer chrome. */
-  const [isLeanEditing, setIsLeanEditing] = useState(false);
   const [cardWidth, setCardWidth] = useState(0);
 
   const currentUser = useCurrentUser();
@@ -89,39 +75,26 @@ const MemoView = forwardRef<MemoViewHandle, MemoViewProps>((props, ref) => {
 
   // The body edits in place: the card, its header and its frame stay, and the memo's
   // own editing session takes the body's place until it saves or cancels.
+  // A single or double click and the action menu's Edit all open this one session.
   const openEditor = useCallback(() => {
-    if (isEditing || isLeanEditing) {
+    if (readonly) return;
+    if (isEditing) {
       focusMountedEditor();
       return;
     }
     setIsEditing(true);
-  }, [focusMountedEditor, isEditing, isLeanEditing]);
+  }, [focusMountedEditor, isEditing, readonly]);
   const closeEditor = useCallback(() => setIsEditing(false), []);
-  // The lean path is the same card without the session's chrome: the rendered memo
-  // itself becomes the editor and autosaves.
-  const openLeanEditor = useCallback(() => {
-    if (readonly || isEditing) return;
-    setIsLeanEditing(true);
-  }, [readonly, isEditing]);
-  const closeLeanEditor = useCallback(() => setIsLeanEditing(false), []);
-
-  // The feed's `e` hotkey asks this card by name to edit in place.
-  const leanEditRequested = useSyncExternalStore(subscribeLeanEditRequests, () => hasLeanEditRequest(memoData.name));
-  useEffect(() => {
-    if (leanEditRequested && consumeLeanEditRequest(memoData.name)) {
-      openLeanEditor();
-    }
-  }, [leanEditRequested, memoData.name, openLeanEditor]);
 
   // Every surface that edits this memo registers itself, so the feed keeps the
   // card's position while the edit is open and its save lifts the hold.
   useEffect(() => {
-    if (isEditing || isLeanEditing) {
+    if (isEditing) {
       setMemoEditing(memoData.name, true);
       return () => setMemoEditing(memoData.name, false);
     }
     return undefined;
-  }, [isEditing, isLeanEditing, memoData.name]);
+  }, [isEditing, memoData.name]);
 
   // The grid keys tiles by memo name (see getMemoKey), so the focused editor
   // identifies its own tile by name and untraps it for the duration.
@@ -139,10 +112,10 @@ const MemoView = forwardRef<MemoViewHandle, MemoViewProps>((props, ref) => {
   // Release the slot when the editor closes or this card unmounts. Both calls
   // are ownership-scoped, so mounting cards never clobber another card's slot.
   useEffect(() => {
-    if (!isEditing && !isLeanEditing) {
+    if (!isEditing) {
       clearUntrappedKey(memoData.name);
     }
-  }, [isEditing, isLeanEditing, memoData.name, clearUntrappedKey]);
+  }, [isEditing, memoData.name, clearUntrappedKey]);
   useEffect(() => () => clearUntrappedKey(memoData.name), [memoData.name, clearUntrappedKey]);
 
   useImperativeHandle(ref, () => ({ openEditor }), [openEditor]);
@@ -195,11 +168,8 @@ const MemoView = forwardRef<MemoViewHandle, MemoViewProps>((props, ref) => {
       showBlurredContent,
       blurred,
       isEditing,
-      isLeanEditing,
       openEditor,
-      openLeanEditor,
       closeEditor,
-      closeLeanEditor,
       onEditorFocusModeChange: handleFocusModeChange,
       toggleBlurVisibility,
       openPreview,
@@ -215,11 +185,8 @@ const MemoView = forwardRef<MemoViewHandle, MemoViewProps>((props, ref) => {
       showBlurredContent,
       blurred,
       isEditing,
-      isLeanEditing,
       openEditor,
-      openLeanEditor,
       closeEditor,
-      closeLeanEditor,
       handleFocusModeChange,
       toggleBlurVisibility,
       openPreview,
@@ -228,7 +195,13 @@ const MemoView = forwardRef<MemoViewHandle, MemoViewProps>((props, ref) => {
 
   const article = (
     <article
-      className={cn(MEMO_CARD_BASE_CLASSES, "group/memo", showCommentPreview ? "mb-0 rounded-b-none" : "mb-2", className)}
+      className={cn(
+        MEMO_CARD_BASE_CLASSES,
+        "group/memo",
+        isEditing && "border-mu-focus",
+        showCommentPreview ? "mb-0 rounded-b-none" : "mb-2",
+        className,
+      )}
       ref={cardRef}
       data-memo-name={memoData.name}
       tabIndex={readonly ? -1 : 0}

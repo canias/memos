@@ -373,6 +373,14 @@
     "count-memos-in-date": "{{count}} {{memos}} w dniu {{date}}",
     "delete-confirm": "Czy na pewno chcesz usunąć tę notatkę?",
     "delete-confirm-description": "Czy na pewno chcesz usunąć tę notatkę? Załączniki, linki i odnośniki także będą usunięte. TA AKCJA JEST NIEODWRACALNA",
+    "selected-count_one": "{{count}} memo selected",
+    "selected-count_other": "{{count}} memos selected",
+    "deleted-count_one": "{{count}} memo deleted",
+    "deleted-count_other": "{{count}} memos deleted",
+    "delete-failed-count_one": "{{count}} memo could not be deleted",
+    "delete-failed-count_other": "{{count}} memos could not be deleted",
+    "delete-selected-confirm_one": "Delete {{count}} selected memo?",
+    "delete-selected-confirm_other": "Delete {{count}} selected memos?",
     "direction": "Kierunek",
     "filters": {
       "has-attachments": "ma załączniki",
@@ -461,11 +469,8 @@
     "full-width-hint": "Używaj całej szerokości osi czasu notatek.",
     "manual-order": "Manual (drag) order",
     "manual-order-hint": "Drag memos to arrange them; the order is remembered",
-    "focus-cue": "enter opens · e edits in place",
     "change-date": "Change date",
     "view-details": "View details",
-    "inline-save-failed": "Couldn't save the edit yet. It stays in the card and retries.",
-    "inline-edit-placeholder": "Edit in place; it saves as you pause",
     "change-date-failed": "Couldn't move the memo yet. Try again."
   },
   "message": {
@@ -625,7 +630,11 @@
       "theme-system-short": "Systemowy",
       "theme-light": "Jasny",
       "theme-dark": "Ciemny",
-      "theme-paper": "Papier"
+      "theme-paper": "Papier",
+      "single-click-edit": "Single click to edit",
+      "single-click-edit-description": "Open your own memos in the editor with a single click.",
+      "skip-delete-confirm": "Delete without confirmation",
+      "skip-delete-confirm-description": "Remove a memo from its menu at once, with no confirmation dialog."
     },
     "editor": {
       "label": "Edytor",
@@ -1476,16 +1485,8 @@
       "weekdays": "On weekdays"
     },
     "every-n-days": "Every {count} day(s)",
-    "create": "Create plan",
-    "created": "Scheduled. It will publish at the chosen time.",
-    "create-failed": "Couldn't create the schedule yet. Try again.",
-    "empty-content": "Write the memo first, then schedule it.",
-    "upcoming": "Upcoming",
-    "upcoming-hint": "Plans that will publish memos on their own",
-    "next-run": "Next publish",
-    "recurring": "Recurring",
-    "delete": "Delete plan",
-    "delete-failed": "Couldn't delete the plan yet. Try again."
+    "time": "Time",
+    "set-date": "Set date"
   },
   "weekday": {
     "monday": "Mon",

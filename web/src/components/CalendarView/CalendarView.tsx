@@ -21,7 +21,6 @@ import { useTranslate } from "@/utils/i18n";
 import { PREVIEW_MIN_CELL_WIDTH } from "./CalendarDayCell";
 import { CalendarGrid } from "./CalendarGrid";
 import { CalendarHeader } from "./CalendarHeader";
-import UpcomingSchedules from "@/components/UpcomingSchedules";
 import { buildCalendarPath, getDefaultDate } from "./paths";
 import { useMonthMemos } from "./useMonthMemos";
 
@@ -149,7 +148,6 @@ export const CalendarView = ({ month, date }: CalendarViewProps) => {
         style={{ paddingInlineEnd: xl && panelOpen ? `calc(${MEMO_PANEL_WIDTH_CSS} + ${MEMO_PANEL_INSET}px)` : undefined }}
       >
         <CalendarHeader month={month} monthLabel={monthLabel} today={today} activeDate={activeDate} closable={md} />
-        {!creatorUsername || creatorUsername === user?.username ? <UpcomingSchedules /> : null}
         <MentionResolutionProvider contents={NO_CONTENTS} userNames={authorNames}>
           <CalendarGrid
             month={month}

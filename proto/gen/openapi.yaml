@@ -2517,183 +2517,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /api/users/{user}/schedules:
-        get:
-            tags:
-                - ScheduleService
-            description: |-
-                ListSchedules lists the caller's publishing plans, the soonest next runs
-                 first.
-            operationId: ScheduleService_ListSchedules
-            parameters:
-                - name: user
-                  in: path
-                  description: The user id.
-                  required: true
-                  schema:
-                    type: string
-                - name: pageSize
-                  in: query
-                  description: Optional. Maximum count to return.
-                  schema:
-                    type: integer
-                    format: int32
-                - name: pageToken
-                  in: query
-                  description: Optional. A page token from a previous list call.
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ListSchedulesResponse'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-        post:
-            tags:
-                - ScheduleService
-            description: CreateSchedule creates a publishing plan owned by the authenticated user.
-            operationId: ScheduleService_CreateSchedule
-            parameters:
-                - name: user
-                  in: path
-                  description: The user id.
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/Schedule'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Schedule'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /api/users/{user}/schedules/{schedule}:
-        get:
-            tags:
-                - ScheduleService
-            description: GetSchedule gets a publishing plan. Requires the caller to own it.
-            operationId: ScheduleService_GetSchedule
-            parameters:
-                - name: user
-                  in: path
-                  description: The user id.
-                  required: true
-                  schema:
-                    type: string
-                - name: schedule
-                  in: path
-                  description: The schedule id.
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Schedule'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-        delete:
-            tags:
-                - ScheduleService
-            description: DeleteSchedule removes a publishing plan. Published memos stay.
-            operationId: ScheduleService_DeleteSchedule
-            parameters:
-                - name: user
-                  in: path
-                  description: The user id.
-                  required: true
-                  schema:
-                    type: string
-                - name: schedule
-                  in: path
-                  description: The schedule id.
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-        patch:
-            tags:
-                - ScheduleService
-            description: |-
-                UpdateSchedule updates a publishing plan's fields, and recomputes the next
-                 run when the recurrence changes.
-            operationId: ScheduleService_UpdateSchedule
-            parameters:
-                - name: user
-                  in: path
-                  description: The user id.
-                  required: true
-                  schema:
-                    type: string
-                - name: schedule
-                  in: path
-                  description: The schedule id.
-                  required: true
-                  schema:
-                    type: string
-                - name: updateMask
-                  in: query
-                  description: |-
-                    Required. The fields to update. Supported paths: content, visibility,
-                     space, start_at, every_n_days, weekday_mask.
-                  schema:
-                    type: string
-                    format: field-mask
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/Schedule'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Schedule'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
     /api/users/{user}/settings:
         get:
             tags:
@@ -4542,15 +4365,6 @@ components:
                     type: string
                     description: A token to retrieve the next page. Empty when there are no more pages.
             description: Response message for UserService.ListPersonalAccessTokens.
-        ListSchedulesResponse:
-            type: object
-            properties:
-                schedules:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/Schedule'
-                nextPageToken:
-                    type: string
         ListSpaceInvitationsResponse:
             type: object
             properties:
@@ -4837,6 +4651,13 @@ components:
                          order values set by dragging, and memos without one follow their time order
                          under the `order` sort. Ignored on creation; change it with UpdateMemo.
                     format: double
+                recurrence:
+                    allOf:
+                        - $ref: '#/components/schemas/Memo_MemoRecurrence'
+                    description: |-
+                        The recurrence of a memo. Absent for ordinary memos. Set it with create_time:
+                         the memo's date is its next occurrence. When every task is done and saved, the
+                         memo resets its tasks and moves its date to the following occurrence.
             description: Memo is a Markdown note written by a user.
         MemoRelation:
             required:
@@ -4940,6 +4761,18 @@ components:
                 lucide:
                     type: string
                     description: A canonical Lucide icon name, such as "leaf".
+        Memo_MemoRecurrence:
+            type: object
+            properties:
+                everyNDays:
+                    type: integer
+                    description: Every N days; never set together with weekday_mask.
+                    format: int32
+                weekdayMask:
+                    type: integer
+                    description: Weekday bitmask, bit 0 = Sunday … bit 6 = Saturday; never set with every_n_days.
+                    format: int32
+            description: The recurrence rule of a recurring memo. Set at most one rule.
         Memo_Property:
             type: object
             properties:
@@ -5176,75 +5009,6 @@ components:
                     description: When the new access token expires.
                     format: date-time
             description: Response message for AuthService.RefreshToken.
-        Schedule:
-            required:
-                - startAt
-            type: object
-            properties:
-                name:
-                    type: string
-                    description: 'The resource name: users/{user}/schedules/{schedule}.'
-                content:
-                    type: string
-                    description: Optional. The Markdown template the published memos start from.
-                visibility:
-                    enum:
-                        - VISIBILITY_UNSPECIFIED
-                        - PRIVATE
-                        - PROTECTED
-                        - PUBLIC
-                        - SPACE
-                    type: string
-                    description: Optional. How the published memos appear; defaults to PRIVATE.
-                    format: enum
-                space:
-                    type: string
-                    description: Optional. The Space the published memos land in, when the plan targets one.
-                everyNDays:
-                    type: integer
-                    description: |-
-                        Optional. The plan fires every N days; at least one. Never set together
-                         with weekday_mask.
-                    format: int32
-                weekdayMask:
-                    type: integer
-                    description: |-
-                        Optional. A weekday bitmask: bit 0 = Sunday … bit 6 = Saturday. Never set
-                         together with every_n_days.
-                    format: int32
-                startAt:
-                    type: string
-                    description: |-
-                        Required. The first fire time; for a one-off plan it is the only fire, and
-                         for a recurrence its time of day repeats on every fire.
-                    format: date-time
-                nextRun:
-                    readOnly: true
-                    type: string
-                    description: Required output only. The next time the plan publishes a memo.
-                    format: date-time
-                lastFired:
-                    readOnly: true
-                    type: string
-                    description: Optional output only. When the plan last published a memo.
-                    format: date-time
-                lastCreatedMemo:
-                    readOnly: true
-                    type: string
-                    description: Optional output only. The memo name the plan last published.
-                createTime:
-                    readOnly: true
-                    type: string
-                    description: Required output only. The creation time.
-                    format: date-time
-                updateTime:
-                    readOnly: true
-                    type: string
-                    description: Required output only. The last update time.
-                    format: date-time
-            description: |-
-                A publish plan of future memos. start_at is the first fire; a plan with
-                 neither every_n_days nor weekday_mask is a one-off that fires once.
         SetMemoAttachmentsRequest:
             required:
                 - name
@@ -6174,11 +5938,6 @@ tags:
       description: |-
         MemoService manages memos and their attachments, relations, comments,
          reactions, and share links.
-    - name: ScheduleService
-      description: |-
-        ScheduleService manages the publishing plans behind scheduled and recurring
-         memos. A schedule holds a Markdown template and a recurrence; when it fires
-         the server publishes a fresh, ordinary memo from the template.
     - name: SpaceService
       description: SpaceService manages collaborative spaces, their members and their invitations.
     - name: UserService

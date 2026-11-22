@@ -1,6 +1,5 @@
-// Package schedule holds the rules behind scheduled and recurring memos: when a
-// publishing plan fires next and what it produces. The math is pure; the store
-// layer and the server's background sweep apply it.
+// Package schedule holds the calendar rules behind recurring memos: when a
+// recurrence fires next. The math is pure; the server applies it on save.
 package schedule
 
 import (

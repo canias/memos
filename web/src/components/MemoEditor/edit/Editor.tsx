@@ -18,7 +18,7 @@ interface EditorProps {
   placeholder: string;
   onContentChange: (content: string) => void;
   onFiles: (files: File[], origin: EditorFileOrigin) => void;
-  /** Invoked by the in-editor save shortcut (Ctrl/⌘+S and ⌘+Enter). */
+  /** Invoked by the in-editor save shortcut (Ctrl/⌘+S and Ctrl/⌘+Enter). */
   onSave: () => void;
   isFocusMode?: boolean;
   /** Rich text, or the whole memo as Markdown text. Switching changes no text. */
@@ -77,6 +77,8 @@ const Editor = forwardRef(function Editor(props: EditorProps, ref: React.Forward
         // Read once, like the rest: the popup keeps the language the composer opened in.
         emojiLabel: t("editor.blocks.emoji"),
         onSave: () => onSaveRef.current(),
+        // Caret ops rewrite the document with setMarkdown, which emits no change; report it so the draft and save see it.
+        onMarkdownChange: (markdown) => onContentChangeRef.current(markdown),
       }),
     [],
   );

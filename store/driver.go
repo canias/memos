@@ -122,13 +122,6 @@ type Driver interface {
 	GetReaction(ctx context.Context, find *FindReaction) (*Reaction, error)
 	DeleteReaction(ctx context.Context, delete *DeleteReaction) error
 
-	// Schedule model related methods.
-	CreateSchedule(ctx context.Context, create *Schedule) (*Schedule, error)
-	ListSchedules(ctx context.Context, find *FindSchedule) ([]*Schedule, error)
-	GetSchedule(ctx context.Context, find *FindSchedule) (*Schedule, error)
-	UpdateSchedule(ctx context.Context, update *UpdateSchedule) (*Schedule, error)
-	DeleteSchedule(ctx context.Context, delete *DeleteSchedule) error
-
 	// MemoShare model related methods.
 	CreateMemoShare(ctx context.Context, create *MemoShare) (*MemoShare, error)
 	ListMemoShares(ctx context.Context, find *FindMemoShare) ([]*MemoShare, error)

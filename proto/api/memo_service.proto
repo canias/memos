@@ -288,6 +288,19 @@ message Memo {
   // under the `order` sort. Ignored on creation; change it with UpdateMemo.
   optional double order = 18 [(google.api.field_behavior) = OPTIONAL];
 
+  // The recurrence of a memo. Absent for ordinary memos. Set it with create_time:
+  // the memo's date is its next occurrence. When every task is done and saved, the
+  // memo resets its tasks and moves its date to the following occurrence.
+  optional MemoRecurrence recurrence = 19 [(google.api.field_behavior) = OPTIONAL];
+
+  // The recurrence rule of a recurring memo. Set at most one rule.
+  message MemoRecurrence {
+    // Every N days; never set together with weekday_mask.
+    optional int32 every_n_days = 1;
+    // Weekday bitmask, bit 0 = Sunday … bit 6 = Saturday; never set with every_n_days.
+    optional int32 weekday_mask = 2;
+  }
+
   // Property holds properties computed from the memo content.
   message Property {
     // The text of the H1 heading when it is the first block of the content.

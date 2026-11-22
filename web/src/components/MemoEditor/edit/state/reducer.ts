@@ -99,6 +99,12 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
         },
       };
 
+    case "SET_RECURRENCE":
+      return {
+        ...state,
+        recurrence: action.payload,
+      };
+
     case "SET_RECORDER_BUSY":
       return {
         ...state,

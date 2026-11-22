@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"strings"
+	"time"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -71,6 +72,14 @@ func (s *APIService) prepareMemoCreate(ctx context.Context, user *store.User, in
 	if input.Location != nil {
 		memo.Payload.Location = convertLocationToStore(input.Location)
 	}
+	if memo.CreatedTs == 0 {
+		memo.CreatedTs = time.Now().Unix()
+	}
+	recurrence, err := recurrenceFromInput(input.Recurrence, memo.CreatedTs)
+	if err != nil {
+		return nil, err
+	}
+	memo.Payload.Recurrence = recurrence
 
 	attachments, err := s.prepareMemoAttachments(ctx, user, memo, input.Attachments)
 	if err != nil {

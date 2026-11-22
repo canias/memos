@@ -1,15 +1,12 @@
-import { timestampFromDate } from "@bufbuild/protobuf/wkt";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DrawingSheet } from "@/components/DrawingSheet";
 import { useAuth } from "@/contexts/AuthContext";
 import { useInstance } from "@/contexts/InstanceContext";
 import useCurrentUser from "@/hooks/useCurrentUser";
-import { useCreateSchedule } from "@/hooks/useScheduleQueries";
 import { useSourceMode } from "@/hooks/useSourceMode";
 import { showErrorToast, toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { InstanceSetting_Key } from "@/types/proto/api/instance_service_pb";
-import { Visibility } from "@/types/proto/api/memo_service_pb";
 import { useTranslate } from "@/utils/i18n";
 import { convertVisibilityFromString } from "@/utils/memo";
 
@@ -67,7 +64,6 @@ export const EditSession: React.FC<EditSessionProps> = ({
   const t = useTranslate();
   const currentUser = useCurrentUser();
   const editorRef = useRef<EditorController>(null);
-  const createSchedule = useCreateSchedule();
   const { actions, dispatch, getState } = useEditorContext();
   // Subscribe only to the low-frequency slices this component renders from, so
   // typing (which changes content) does not re-render the editor shell and its
@@ -334,30 +330,14 @@ export const EditSession: React.FC<EditSessionProps> = ({
     onCancel: onCancel ? handleCancel : undefined,
   });
 
+  // Staging a date and recurrence only changes the composer; Save writes them to the memo.
   const handleScheduleDraft = useCallback(
     (draft: ScheduleDraft) => {
-      const content = editorRef.current?.getMarkdown() ?? "";
-      if (!content.trim()) {
-        showErrorToast(t("schedule.empty-content"));
-        return;
-      }
-      createSchedule.mutate(
-        {
-          ...draft,
-          visibility: draft.visibility ?? defaultVisibility ?? Visibility.PRIVATE,
-          startAt: timestampFromDate(draft.startAt),
-        },
-        {
-          onSuccess: () => {
-            // The draft moved into its publishing plan; the composer starts clean.
-            dispatch(actions.reset());
-            toast.add({ title: t("schedule.created"), type: "success" });
-          },
-          onError: () => showErrorToast(t("schedule.create-failed")),
-        },
-      );
+      dispatch(actions.setTimestamps({ createTime: draft.startAt }));
+      const hasRecurrence = draft.everyNDays !== undefined || draft.weekdayMask !== undefined;
+      dispatch(actions.setRecurrence(hasRecurrence ? { everyNDays: draft.everyNDays, weekdayMask: draft.weekdayMask } : undefined));
     },
-    [createSchedule, defaultVisibility, dispatch, t],
+    [dispatch],
   );
 
   return (

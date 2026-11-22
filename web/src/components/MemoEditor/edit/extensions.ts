@@ -12,8 +12,10 @@ export interface EditorExtensionsOptions {
   onFiles: (files: File[], origin: EditorFileOrigin) => void;
   /** Accessible name of the emoji popup. */
   emojiLabel: string;
-  /** Saves the memo: the Ctrl/⌘+S and ⌘+Enter shortcut. */
+  /** Saves the memo: the Ctrl/⌘+S and Ctrl/⌘+Enter shortcut. */
   onSave: () => void;
+  /** Reports the Markdown after a caret op rewrites it, since `setMarkdown` emits no change. */
+  onMarkdownChange?: (markdown: string) => void;
 }
 
 /**
@@ -55,10 +57,10 @@ export const allowTagSuggestion = ({ excluded, explicit, query, textBefore }: Su
 };
 
 /** What only the composer adds to the memo syntax MemoMarkdown already reads: hotkeys, autocomplete and file handling. */
-export function buildEditorExtensions({ getTags, onFiles, emojiLabel, onSave }: EditorExtensionsOptions): Extension[] {
+export function buildEditorExtensions({ getTags, onFiles, emojiLabel, onSave, onMarkdownChange }: EditorExtensionsOptions): Extension[] {
   return [
-    // Bound before the editor's default keymap, so Ctrl+Enter cycles instead of submitting.
-    memoEditorHotkeys({ onSave }),
+    // Bound before the editor's default keymap, so the save chords win over its defaults.
+    memoEditorHotkeys({ onSave, onMarkdownChange }),
     // The popup opens exactly where tags are highlighted: the matcher is built
     // from the same scanner as tags(). A pick writes "#work/planning ".
     suggestion({

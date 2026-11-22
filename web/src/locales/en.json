@@ -506,6 +506,14 @@
     "count-memos-updated-in-date": "{{count}} {{memos}} updated on {{date}}",
     "delete-confirm": "Are you sure you want to delete this memo?",
     "delete-confirm-description": "This action is irreversible. Attachments, links, and references will also be removed.",
+    "selected-count_one": "{{count}} memo selected",
+    "selected-count_other": "{{count}} memos selected",
+    "deleted-count_one": "{{count}} memo deleted",
+    "deleted-count_other": "{{count}} memos deleted",
+    "delete-failed-count_one": "{{count}} memo could not be deleted",
+    "delete-failed-count_other": "{{count}} memos could not be deleted",
+    "delete-selected-confirm_one": "Delete {{count}} selected memo?",
+    "delete-selected-confirm_other": "Delete {{count}} selected memos?",
     "direction": "Direction",
     "filters": {
       "any-visibility": "Any audience",
@@ -522,7 +530,6 @@
     "full-width": "Full width",
     "connections": "Connections",
     "grid-compact-hint": "Collapse longer memos. Always enabled for grid layouts.",
-    "focus-cue": "enter opens · e edits in place",
     "manual-order": "Manual (drag) order",
     "manual-order-hint": "Drag memos to arrange them; the order is remembered",
     "full-width-hint": "Use entire width of the memo timeline.",
@@ -590,8 +597,6 @@
     "remove-reaction": "Remove reaction",
     "change-date": "Change date",
     "view-details": "View details",
-    "inline-save-failed": "Couldn't save the edit yet. It stays in the card and retries.",
-    "inline-edit-placeholder": "Edit in place; it saves as you pause",
     "change-date-failed": "Couldn't move the memo yet. Try again."
   },
   "message": {
@@ -966,7 +971,11 @@
       "theme-system-short": "System",
       "theme-light": "Light",
       "theme-dark": "Dark",
-      "theme-paper": "Paper"
+      "theme-paper": "Paper",
+      "single-click-edit": "Single click to edit",
+      "single-click-edit-description": "Open your own memos in the editor with a single click.",
+      "skip-delete-confirm": "Delete without confirmation",
+      "skip-delete-confirm-description": "Remove a memo from its menu at once, with no confirmation dialog."
     },
     "editor": {
       "label": "Editor",
@@ -1474,16 +1483,8 @@
       "weekdays": "On weekdays"
     },
     "every-n-days": "Every {count} day(s)",
-    "create": "Create plan",
-    "created": "Scheduled. It will publish at the chosen time.",
-    "create-failed": "Couldn't create the schedule yet. Try again.",
-    "empty-content": "Write the memo first, then schedule it.",
-    "upcoming": "Upcoming",
-    "upcoming-hint": "Plans that will publish memos on their own",
-    "next-run": "Next publish",
-    "recurring": "Recurring",
-    "delete": "Delete plan",
-    "delete-failed": "Couldn't delete the plan yet. Try again."
+    "time": "Time",
+    "set-date": "Set date"
   },
   "weekday": {
     "monday": "Mon",
