@@ -3,6 +3,7 @@ package api
 import (
 	"testing"
 
+	apipb "github.com/usememos/memos/proto/gen/api"
 	storepb "github.com/usememos/memos/proto/gen/store"
 	"github.com/usememos/memos/store"
 )
@@ -44,6 +45,34 @@ func TestRollRecurringMemo(t *testing.T) {
 		memo := &store.Memo{Content: "- [x] a", Payload: &storepb.MemoPayload{}}
 		if rollRecurringMemo(memo) != nil {
 			t.Fatal("non-recurring memo must not roll over")
+		}
+	})
+}
+
+func TestRecurrenceFromInput(t *testing.T) {
+	start := int64(1_700_000_000)
+
+	t.Run("nil input is not recurring", func(t *testing.T) {
+		got, err := recurrenceFromInput(nil, start)
+		if err != nil || got != nil {
+			t.Fatalf("got %v, %v; want nil, nil", got, err)
+		}
+	})
+
+	t.Run("every N days anchors next run to the memo date", func(t *testing.T) {
+		got, err := recurrenceFromInput(&apipb.Memo_MemoRecurrence{EveryNDays: int32Ptr(3)}, start)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got.GetNextRunTs() != start || got.GetEveryNDays() != 3 {
+			t.Fatalf("got %+v", got)
+		}
+	})
+
+	t.Run("rejects a rule that sets both forms", func(t *testing.T) {
+		_, err := recurrenceFromInput(&apipb.Memo_MemoRecurrence{EveryNDays: int32Ptr(1), WeekdayMask: int32Ptr(2)}, start)
+		if err == nil {
+			t.Fatal("expected validation error")
 		}
 	})
 }
