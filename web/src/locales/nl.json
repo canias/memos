@@ -1466,6 +1466,8 @@
     },
     "editor": {
       "cycle-task": "Regel laten wisselen: te doen, bezig, klaar, normaal",
+      "cycle-task-back": "Cycle a line's task state backward",
+      "toggle-bullet": "Toggle a bullet on the line",
       "move-line": "Regel of taak omhoog/omlaag verplaatsen",
       "save": "De memo opslaan"
     },

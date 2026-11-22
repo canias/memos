@@ -1466,6 +1466,8 @@
     },
     "editor": {
       "cycle-task": "Zeile umschalten: offen, in Arbeit, erledigt, einfach",
+      "cycle-task-back": "Cycle a line's task state backward",
+      "toggle-bullet": "Toggle a bullet on the line",
       "move-line": "Zeile oder Aufgabe nach oben/unten bewegen",
       "save": "Memo speichern"
     },

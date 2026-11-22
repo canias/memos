@@ -1467,6 +1467,8 @@
     },
     "editor": {
       "cycle-task": "Alternar a linha: pendente, em andamento, feita, simples",
+      "cycle-task-back": "Cycle a line's task state backward",
+      "toggle-bullet": "Toggle a bullet on the line",
       "move-line": "Mover a linha ou tarefa para cima/baixo",
       "save": "Salvar o memo"
     },

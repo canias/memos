@@ -1468,6 +1468,8 @@
     },
     "editor": {
       "cycle-task": "Przełączaj wiersz: do zrobienia, w toku, gotowe, zwykłe",
+      "cycle-task-back": "Cycle a line's task state backward",
+      "toggle-bullet": "Toggle a bullet on the line",
       "move-line": "Przenieś wiersz lub zadanie w górę/dół",
       "save": "Zapisz notatkę"
     },

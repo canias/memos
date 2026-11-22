@@ -1468,6 +1468,8 @@
     },
     "editor": {
       "cycle-task": "Перемкнути рядок: на черзі, у роботі, готово, звичайний",
+      "cycle-task-back": "Cycle a line's task state backward",
+      "toggle-bullet": "Toggle a bullet on the line",
       "move-line": "Перемістити рядок чи завдання вгору/вниз",
       "save": "Зберегти нотатку"
     },

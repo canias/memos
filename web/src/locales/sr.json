@@ -1467,6 +1467,8 @@
     },
     "editor": {
       "cycle-task": "Cycle a line: todo, doing, done, plain",
+      "cycle-task-back": "Cycle a line's task state backward",
+      "toggle-bullet": "Toggle a bullet on the line",
       "move-line": "Move the line or task up or down",
       "save": "Save the memo"
     },

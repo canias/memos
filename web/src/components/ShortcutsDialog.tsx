@@ -21,9 +21,11 @@ const SHORTCUT_GROUPS = (modifier: string): { title: Translations; rows: { keys:
   {
     title: "shortcut.group.editor",
     rows: [
-      { keys: [`${modifier}+enter`], label: "shortcut.editor.cycle-task" },
-      { keys: ["alt+↑ / alt+↓"], label: "shortcut.editor.move-line" },
-      { keys: [`${modifier}+s`], label: "shortcut.editor.save" },
+      { keys: ["ctrl+y", "ctrl+→"], label: "shortcut.editor.cycle-task" },
+      { keys: ["ctrl+shift+y", "ctrl+←"], label: "shortcut.editor.cycle-task-back" },
+      { keys: [`${modifier}+.`], label: "shortcut.editor.toggle-bullet" },
+      { keys: ["alt+↑", "alt+↓"], label: "shortcut.editor.move-line" },
+      { keys: [`${modifier}+s`, `${modifier}+enter`], label: "shortcut.editor.save" },
     ],
   },
   {

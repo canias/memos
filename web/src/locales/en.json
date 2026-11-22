@@ -16,8 +16,10 @@
       "cheatsheet": "Show this cheat sheet"
     },
     "editor": {
-      "cycle-task": "Cycle a line: todo, doing, done, plain",
-      "move-line": "Move the line or task up or down",
+      "cycle-task": "Cycle a line's task state forward: todo, doing, done, plain",
+      "cycle-task-back": "Cycle a line's task state backward",
+      "toggle-bullet": "Toggle a bullet on the line",
+      "move-line": "Move the line or list item up or down",
       "save": "Save the memo"
     },
     "memo": {

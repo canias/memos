@@ -1468,6 +1468,8 @@
     },
     "editor": {
       "cycle-task": "Переключить строку: к выполнению, в работе, готово, обычная",
+      "cycle-task-back": "Cycle a line's task state backward",
+      "toggle-bullet": "Toggle a bullet on the line",
       "move-line": "Переместить строку или задачу вверх/вниз",
       "save": "Сохранить заметку"
     },

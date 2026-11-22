@@ -1466,6 +1466,8 @@
     },
     "editor": {
       "cycle-task": "Satırı döngüyle değiştir: yapılacak, sürüyor, yapıldı, düz",
+      "cycle-task-back": "Cycle a line's task state backward",
+      "toggle-bullet": "Toggle a bullet on the line",
       "move-line": "Satırı veya görevi yukarı/aşağı taşı",
       "save": "Notu kaydet"
     },

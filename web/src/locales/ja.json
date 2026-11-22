@@ -1466,6 +1466,8 @@
     },
     "editor": {
       "cycle-task": "行の状態を切り替え:未完了、進行中、完了、なし",
+      "cycle-task-back": "Cycle a line's task state backward",
+      "toggle-bullet": "Toggle a bullet on the line",
       "move-line": "行やタスクを上下に移動",
       "save": "メモを保存"
     },

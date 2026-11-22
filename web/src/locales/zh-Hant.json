@@ -1466,6 +1466,8 @@
     },
     "editor": {
       "cycle-task": "循環切換行狀態:待辦、進行中、完成、一般",
+      "cycle-task-back": "Cycle a line's task state backward",
+      "toggle-bullet": "Toggle a bullet on the line",
       "move-line": "上下移動該行或任務",
       "save": "儲存備忘"
     },

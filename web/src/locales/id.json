@@ -1466,6 +1466,8 @@
     },
     "editor": {
       "cycle-task": "Putar status baris: akan dikerjakan, sedang, selesai, biasa",
+      "cycle-task-back": "Cycle a line's task state backward",
+      "toggle-bullet": "Toggle a bullet on the line",
       "move-line": "Pindahkan baris atau tugas ke atas/bawah",
       "save": "Simpan memo"
     },

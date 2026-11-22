@@ -1467,6 +1467,8 @@
     },
     "editor": {
       "cycle-task": "Cicla la riga: da fare, in corso, fatto, semplice",
+      "cycle-task-back": "Cycle a line's task state backward",
+      "toggle-bullet": "Toggle a bullet on the line",
       "move-line": "Sposta la riga o l'attività su/giù",
       "save": "Salva il memo"
     },

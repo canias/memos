@@ -126,7 +126,18 @@ export const AppSidebarProvider = ({ children }: { children: ReactNode }) => {
       memoFilterMenuOpen,
       setMemoFilterMenuOpen,
     }),
-    [attachmentSection, inboxFilter, memoDetail, setMemoDetail, mobileOpen, closeMobileThen, completeMobileClose, quickFindOpen],
+    [
+      attachmentSection,
+      inboxFilter,
+      memoDetail,
+      setMemoDetail,
+      mobileOpen,
+      closeMobileThen,
+      completeMobileClose,
+      quickFindOpen,
+      shortcutsOpen,
+      memoFilterMenuOpen,
+    ],
   );
 
   return <AppSidebarContext.Provider value={value}>{children}</AppSidebarContext.Provider>;

@@ -1466,6 +1466,8 @@
     },
     "editor": {
       "cycle-task": "줄 상태 순환: 할 일, 진행 중, 완료, 일반",
+      "cycle-task-back": "Cycle a line's task state backward",
+      "toggle-bullet": "Toggle a bullet on the line",
       "move-line": "줄이나 작업을 위/아래로 이동",
       "save": "메모 저장"
     },

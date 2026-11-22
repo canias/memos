@@ -1470,6 +1470,8 @@
     },
     "editor": {
       "cycle-task": "تدوير حالة السطر: مهام قائمة، قيد التنفيذ، منجزة، عادي",
+      "cycle-task-back": "Cycle a line's task state backward",
+      "toggle-bullet": "Toggle a bullet on the line",
       "move-line": "نقل السطر أو المهمة لأعلى/أسفل",
       "save": "حفظ المذكرة"
     },
